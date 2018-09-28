@@ -9,4 +9,4 @@ Kód je licencovaný pod MIT licencí a prezentace jako CC-BY-4.0.
 
 ## Prezentace
 * [00_android_studio](https://docs.google.com/presentation/d/1ztOmegQtImli1QbDl2Q2_72KdRrxPmzQ4TgcsQX9h0I/edit?usp=sharing) - úvod do Android studia
-* [O1_uvod_do_androidi_javy](https://docs.google.com/presentation/d/16Rp0MTegHllBvYUa25uYLY0l2QHaQcBcgqx0VUaNT4k/edit?usp=sharing) - Java v Androidu polopatě
+* [01_uvod_do_androidi_javy](https://docs.google.com/presentation/d/16Rp0MTegHllBvYUa25uYLY0l2QHaQcBcgqx0VUaNT4k/edit?usp=sharing) - Java v Androidu polopatě
