@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             JSONObject params = forecast.getJSONObject("parameterValues");
             JSONArray temp = params.getJSONArray("TEMPERATURE");
             if(nowIndex > temp.length()) {
-                txt.setText("Infomace o počasí jsou moc staré a neobsahují aktuální hodinu :(");
+                txt.setText("Informace o počasí jsou moc staré a neobsahují aktuální hodinu :(");
                 return;
             }
 
