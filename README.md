@@ -11,3 +11,4 @@ Kód je licencovaný pod MIT licencí a prezentace jako CC-BY-4.0.
 * [00_android_studio](https://docs.google.com/presentation/d/1ztOmegQtImli1QbDl2Q2_72KdRrxPmzQ4TgcsQX9h0I/edit?usp=sharing) - úvod do Android studia
 * [01_struktura_projektu](https://docs.google.com/presentation/d/1sUc5TxD0FlNWZT4gqCzjfaBPLxHX8uHtWNKukIKlpjI/edit?usp=sharing) - co najdeme v projektu naší aplikace
 * [02_uvod_do_androidi_javy](https://docs.google.com/presentation/d/16Rp0MTegHllBvYUa25uYLY0l2QHaQcBcgqx0VUaNT4k/edit?usp=sharing) - Java v Androidu polopatě
+* [03_app_prevod_teploty](https://docs.google.com/presentation/d/1PZ2Lm8T9VoKYHKuWUZF0hBzLppXkj0o9yiO7LEtmtrs/edit?usp=sharing) - Aplikace na převod 03_app_prevod_teploty
