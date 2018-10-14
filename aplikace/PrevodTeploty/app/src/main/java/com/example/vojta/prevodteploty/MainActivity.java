@@ -19,25 +19,39 @@ public class MainActivity extends AppCompatActivity {
         prevest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Najdeme si vstupni a vystupni pole
                 TextView result = findViewById(R.id.vysledek);
                 EditText input = findViewById(R.id.vstup);
+
+                // Ziskame obsah policka “vstup” jako text
+                String celsiusStr = input.getText().toString();
+
+                /*
+                // Prevedeme ho na desetinne cislo
+                double celsius = Double.parseDouble(celsiusStr);
+
+                // Pouzijeme nasi fci na prevod na °F
+                double fr = celToFar(celsius);
+                // Nastavime vysledek do prvku "vysledek"
+                result.setText(fr + " °F");
+                */
+
                 try {
-                    double cel = Double.parseDouble(input.getText().toString());
-                    result.setText(celToFar(cel) + " °F");
+                    // Prevedeme ho na desetinne cislo
+                    double celsius = Double.parseDouble(celsiusStr);
+
+                    // Pouzijeme nasi fci na prevod na °F
+                    double fr = celToFar(celsius);
+                    // Nastavime vysledek do prvku "vysledek"
+                    result.setText(fr + " °F");
                 } catch(NumberFormatException e) {
                     result.setText("Neplatný vstup!");
-                } catch(ArithmeticException e) {
-                    result.setText(e.toString());
                 }
             }
         });
     }
 
-    double celToFar(double cel) throws ArithmeticException {
-        if(cel <= -273.15) {
-            throw new ArithmeticException("Zadana teplota je pod absolutni nulou!");
-        }
-
+    double celToFar(double cel) {
         return cel * 9/5 + 32;
     }
 }
