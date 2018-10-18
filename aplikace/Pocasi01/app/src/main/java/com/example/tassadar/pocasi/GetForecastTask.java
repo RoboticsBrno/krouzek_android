@@ -17,10 +17,10 @@ import java.net.URLConnection;
 public class GetForecastTask extends AsyncTask<Pair<Double, Double>, Void, JSONObject> {
     private static final String BASE_URL = "http://aladin.spekacek.com/meteorgram/endpoint-v2/getWeatherInfo";
 
-    private WeakReference<MainActivity> m_activityReference;
+    private MainActivity m_activity;
 
     public GetForecastTask(MainActivity act) {
-        m_activityReference = new WeakReference<>(act);
+        m_activity = act;
     }
 
     @Override
@@ -50,10 +50,7 @@ public class GetForecastTask extends AsyncTask<Pair<Double, Double>, Void, JSONO
     }
 
     protected void onPostExecute(JSONObject result) {
-        MainActivity act = m_activityReference.get();
-        if(act != null) {
-            act.onForecastLoaded(result);
-        }
+        m_activity.onForecastLoaded(result);
     }
 
     private void closeStream(Closeable str) {
