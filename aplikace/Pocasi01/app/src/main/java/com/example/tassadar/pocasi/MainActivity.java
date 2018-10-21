@@ -28,14 +28,22 @@ public class MainActivity extends AppCompatActivity {
         jakJe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String url = "http://aladin.spekacek.com/meteorgram/endpoint-v2/getWeatherInfo?latitude=49.2030&longitude=16.5976";
                 GetForecastTask task = new GetForecastTask(MainActivity.this);
-                task.execute(new Pair<>(49.14402, 16.66766));
+                task.execute(url);
             }
         });
     }
 
-    public void onForecastLoaded(JSONObject forecast) {
-        Log.i("Pocasi", "Nacteno! " + forecast);
+    public void onForecastLoaded(String forecastJson) {
+        Log.i("Pocasi", "Nacteno! " + forecastJson);
+
+        JSONObject forecast = null;
+        try {
+            forecast = new JSONObject(forecastJson);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         TextView txt = (TextView)findViewById(R.id.pocasiText);
         if(forecast == null) {

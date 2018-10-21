@@ -14,9 +14,7 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class GetForecastTask extends AsyncTask<Pair<Double, Double>, Void, JSONObject> {
-    private static final String BASE_URL = "http://aladin.spekacek.com/meteorgram/endpoint-v2/getWeatherInfo";
-
+public class GetForecastTask extends AsyncTask<String, Void, String> {
     private MainActivity m_activity;
 
     public GetForecastTask(MainActivity act) {
@@ -24,11 +22,10 @@ public class GetForecastTask extends AsyncTask<Pair<Double, Double>, Void, JSONO
     }
 
     @Override
-    protected JSONObject doInBackground(Pair... coord) {
+    protected String doInBackground(String... urls) {
         InputStream body = null;
         try {
-            URL url = new URL(String.format("%s?latitude=%f&longitude=%f", BASE_URL,
-                    coord[0].first, coord[0].second));
+            URL url = new URL(urls[0]);
             URLConnection conn = url.openConnection();
             body = conn.getInputStream();
 
@@ -38,28 +35,20 @@ public class GetForecastTask extends AsyncTask<Pair<Double, Double>, Void, JSONO
             while((read = body.read(buf)) > 0) {
                 downloaded.write(buf, 0, read);
             }
-            return new JSONObject(downloaded.toString("utf-8"));
+            return downloaded.toString("utf-8");
         } catch(IOException ex) {
             ex.printStackTrace();
-        } catch(JSONException ex) {
-            ex.printStackTrace();
         } finally {
-            closeStream(body);
+            if(body != null) {
+                try {
+                    body.close();
+                } catch (IOException ignored) { }
+            }
         }
         return null;
     }
 
-    protected void onPostExecute(JSONObject result) {
+    protected void onPostExecute(String result) {
         m_activity.onForecastLoaded(result);
-    }
-
-    private void closeStream(Closeable str) {
-        if(str != null) {
-            try {
-                str.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
