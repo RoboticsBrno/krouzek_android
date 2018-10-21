@@ -38,20 +38,15 @@ public class MainActivity extends AppCompatActivity {
     public void onForecastLoaded(String forecastJson) {
         Log.i("Pocasi", "Nacteno! " + forecastJson);
 
-        JSONObject forecast = null;
-        try {
-            forecast = new JSONObject(forecastJson);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         TextView txt = (TextView)findViewById(R.id.pocasiText);
-        if(forecast == null) {
+        if(forecastJson == null) {
             txt.setText("Nepodařilo se načíst počasí!");
             return;
         }
 
         try {
+            JSONObject forecast = new JSONObject(forecastJson);
+
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
             df.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
             Date dateForecast = df.parse(forecast.getString("forecastTimeIso"));

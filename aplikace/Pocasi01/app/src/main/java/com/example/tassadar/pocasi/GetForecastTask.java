@@ -23,27 +23,27 @@ public class GetForecastTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... urls) {
-        InputStream body = null;
         try {
             URL url = new URL(urls[0]);
             URLConnection conn = url.openConnection();
-            body = conn.getInputStream();
 
-            int read;
-            byte[] buf = new byte[4096];
+            InputStream body = conn.getInputStream();
+
+            byte[] buffer = new byte[4096];
             ByteArrayOutputStream downloaded = new ByteArrayOutputStream();
-            while((read = body.read(buf)) > 0) {
-                downloaded.write(buf, 0, read);
+
+            while(true) {
+                int read = body.read(buffer);
+                if(read <= 0)
+                    break;
+                downloaded.write(buffer, 0, read);
             }
-            return downloaded.toString("utf-8");
-        } catch(IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if(body != null) {
-                try {
-                    body.close();
-                } catch (IOException ignored) { }
-            }
+
+            body.close();
+
+            return downloaded.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
