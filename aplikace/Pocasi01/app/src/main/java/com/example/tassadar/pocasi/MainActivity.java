@@ -47,16 +47,19 @@ public class MainActivity extends AppCompatActivity {
         try {
             JSONObject forecast = new JSONObject(forecastJson);
 
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            String forecastTimeIso = forecast.getString("forecastTimeIso");
+            Log.i("Pocasi", "Predpoved vygenerovana v " + forecastTimeIso);
+
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             df.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
-            Date dateForecast = df.parse(forecast.getString("forecastTimeIso"));
+            Date dateForecast = df.parse(forecastTimeIso);
+
             Date dateNow = new Date();
-            Log.i("Pocasi", "" + dateNow + "" + dateForecast);
 
             int nowIndex = 0;
             if(dateNow.after(dateForecast)) {
-                long diff = (dateNow.getTime() - dateForecast.getTime());
-                nowIndex = (int) (diff / (3600 * 1000));
+                long diffMs = (dateNow.getTime() - dateForecast.getTime());
+                nowIndex = (int) (diffMs / (3600 * 1000));
             }
 
             JSONObject params = forecast.getJSONObject("parameterValues");
@@ -66,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            Date roundedHour = new Date(dateNow.getTime() - (dateNow.getTime() % (3600 * 1000)));
-            txt.setText(String.format("Teplota v %s je %.1f \u00B0C",
+            Date roundedHour = new Date(dateForecast.getTime() + nowIndex * 3600 * 1000);
+            txt.setText(String.format("Teplota v %s je %.1f °C",
                     df.format(roundedHour), temp.getDouble(nowIndex)));
         } catch(JSONException ex) {
             ex.printStackTrace();
