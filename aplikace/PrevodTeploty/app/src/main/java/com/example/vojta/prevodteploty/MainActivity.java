@@ -26,24 +26,21 @@ public class MainActivity extends AppCompatActivity {
                 // Ziskame obsah policka “vstup” jako text
                 String celsiusStr = input.getText().toString();
 
-                /*
-                // Prevedeme ho na desetinne cislo
-                double celsius = Double.parseDouble(celsiusStr);
-
-                // Pouzijeme nasi fci na prevod na °F
-                double fr = celToFar(celsius);
-                // Nastavime vysledek do prvku "vysledek"
-                result.setText(fr + " °F");
-                */
-
                 try {
                     // Prevedeme ho na desetinne cislo
                     double celsius = Double.parseDouble(celsiusStr);
+
+                    // Je menší než -273.15 °C?
+                    if(celsius < -273.15) {
+                        result.setText("Pod absolutní nulou");
+                        return;
+                    }
 
                     // Pouzijeme nasi fci na prevod na °F
                     double fr = celToFar(celsius);
                     // Nastavime vysledek do prvku "vysledek"
                     result.setText(fr + " °F");
+
                 } catch(NumberFormatException e) {
                     result.setText("Neplatný vstup!");
                 }

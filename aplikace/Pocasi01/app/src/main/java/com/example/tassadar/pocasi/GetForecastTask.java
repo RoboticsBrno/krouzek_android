@@ -33,10 +33,10 @@ public class GetForecastTask extends AsyncTask<String, Void, String> {
             ByteArrayOutputStream downloaded = new ByteArrayOutputStream();
 
             while(true) {
-                int read = body.read(buffer);
-                if(read <= 0)
+                int readCount = body.read(buffer);
+                if(readCount <= 0)
                     break;
-                downloaded.write(buffer, 0, read);
+                downloaded.write(buffer, 0, readCount);
             }
 
             body.close();
