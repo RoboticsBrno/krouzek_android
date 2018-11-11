@@ -1,11 +1,14 @@
 package com.example.tassadar.pocasi;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -24,15 +27,49 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        EditText latView = findViewById(R.id.latitude);
+        EditText lonView = findViewById(R.id.longitude);
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        latView.setText(pref.getString("latitude", "49.2030"));
+        lonView.setText(pref.getString("longitude", "16.5976"));
+
         Button jakJe = findViewById(R.id.jakJeButton);
         jakJe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = "http://aladin.spekacek.com/meteorgram/endpoint-v2/getWeatherInfo?latitude=49.2030&longitude=16.5976";
+                EditText latView = findViewById(R.id.latitude);
+                EditText lonView = findViewById(R.id.longitude);
+
+                double latitude, longitude;
+                try {
+                    latitude = Double.valueOf(latView.getText().toString());
+                    longitude = Double.valueOf(lonView.getText().toString());
+                } catch(NumberFormatException e) {
+                    TextView txt = findViewById(R.id.pocasiText);
+                    txt.setText("Špatný formát souřadnic.");
+                    return;
+                }
+
+                String url = String.format("http://aladin.spekacek.com/meteorgram/endpoint-v2/" +
+                                "getWeatherInfo?latitude=%f&longitude=%f", latitude, longitude);
                 GetForecastTask task = new GetForecastTask(MainActivity.this);
                 task.execute(url);
             }
         });
+    }
+
+    protected void onPause() {
+        super.onPause();
+
+        EditText latView = findViewById(R.id.latitude);
+        EditText lonView = findViewById(R.id.longitude);
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("latitude", latView.getText().toString());
+        editor.putString("longitude", lonView.getText().toString());
+        editor.apply();
     }
 
     public void onForecastLoaded(String forecastJson) {
@@ -44,33 +81,23 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-
-
-
         try {
             JSONObject forecast = new JSONObject(forecastJson);
 
             String forecastTimeIso = forecast.getString("forecastTimeIso");
             Log.i("Pocasi", "Predpoved vygenerovana v " + forecastTimeIso);
 
-
-
-
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             df.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
             Date dateForecast = df.parse(forecastTimeIso);
 
-
-
             Date dateNow = new Date();
-            int nowIndex = 0;
 
+            int nowIndex = 0;
             if(dateNow.after(dateForecast)) {
                 long diffMs = (dateNow.getTime() - dateForecast.getTime());
                 nowIndex = (int) (diffMs / (3600 * 1000));
             }
-
-
 
             JSONObject params = forecast.getJSONObject("parameterValues");
             JSONArray temp = params.getJSONArray("TEMPERATURE");
@@ -82,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
             Date roundedHour = new Date(dateForecast.getTime() + nowIndex * 3600 * 1000);
             txt.setText(String.format("Teplota v %s je %.1f °C",
                     df.format(roundedHour), temp.getDouble(nowIndex)));
-
         } catch(JSONException ex) {
             ex.printStackTrace();
             txt.setText("Špatný formát dat o počasí!");
