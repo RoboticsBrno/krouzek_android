@@ -21,12 +21,12 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         EditText latView = findViewById(R.id.latitude);
         EditText lonView = findViewById(R.id.longitude);
 
@@ -45,14 +45,14 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     latitude = Double.valueOf(latView.getText().toString());
                     longitude = Double.valueOf(lonView.getText().toString());
-                } catch(NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     TextView txt = findViewById(R.id.pocasiText);
                     txt.setText("Špatný formát souřadnic.");
                     return;
                 }
 
                 String url = String.format("http://aladin.spekacek.com/meteorgram/endpoint-v2/" +
-                                "getWeatherInfo?latitude=%f&longitude=%f", latitude, longitude);
+                        "getWeatherInfo?latitude=%f&longitude=%f", latitude, longitude);
                 GetForecastTask task = new GetForecastTask(MainActivity.this);
                 task.execute(url);
             }
@@ -75,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
     public void onForecastLoaded(String forecastJson) {
         Log.i("Pocasi", "Nacteno! " + forecastJson);
 
-        TextView txt = (TextView)findViewById(R.id.pocasiText);
-        if(forecastJson == null) {
+        TextView txt = (TextView) findViewById(R.id.pocasiText);
+        if (forecastJson == null) {
             txt.setText("Nepodařilo se načíst počasí!");
             return;
         }
@@ -94,14 +94,14 @@ public class MainActivity extends AppCompatActivity {
             Date dateNow = new Date();
 
             int nowIndex = 0;
-            if(dateNow.after(dateForecast)) {
+            if (dateNow.after(dateForecast)) {
                 long diffMs = (dateNow.getTime() - dateForecast.getTime());
                 nowIndex = (int) (diffMs / (3600 * 1000));
             }
 
             JSONObject params = forecast.getJSONObject("parameterValues");
             JSONArray temp = params.getJSONArray("TEMPERATURE");
-            if(nowIndex > temp.length()) {
+            if (nowIndex > temp.length()) {
                 txt.setText("Informace o počasí jsou moc staré a neobsahují aktuální hodinu :(");
                 return;
             }
@@ -109,10 +109,10 @@ public class MainActivity extends AppCompatActivity {
             Date roundedHour = new Date(dateForecast.getTime() + nowIndex * 3600 * 1000);
             txt.setText(String.format("Teplota v %s je %.1f °C",
                     df.format(roundedHour), temp.getDouble(nowIndex)));
-        } catch(JSONException ex) {
+        } catch (JSONException ex) {
             ex.printStackTrace();
             txt.setText("Špatný formát dat o počasí!");
-        } catch(ParseException ex) {
+        } catch (ParseException ex) {
             ex.printStackTrace();
             txt.setText("Špatný formát času!");
         }
