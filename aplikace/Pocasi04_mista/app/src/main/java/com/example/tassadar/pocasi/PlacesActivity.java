@@ -22,7 +22,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.OnPlaceClickedListener {
-    private PlacesAdapter mAdapter;
     private ArrayList<Place> mPlaces;
 
     @Override
@@ -33,11 +32,11 @@ public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.O
         RecyclerView list = findViewById(R.id.placesList);
         list.setLayoutManager(new LinearLayoutManager(this));
 
-        mAdapter = new PlacesAdapter(this);
-        list.setAdapter(mAdapter);
+        PlacesAdapter adapter = new PlacesAdapter(this);
+        list.setAdapter(adapter);
 
         mPlaces = Place.getAll(getAssets());
-        mAdapter.submitList(mPlaces);
+        adapter.submitList(mPlaces);
 
         EditText hledat = findViewById(R.id.searchText);
         hledat.addTextChangedListener(new TextWatcher() {
@@ -69,9 +68,9 @@ public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.O
         }
 
         RecyclerView list = findViewById(R.id.placesList);
-        mAdapter = new PlacesAdapter(this);
-        list.setAdapter(mAdapter);
-        mAdapter.submitList(filtered);
+        PlacesAdapter adapter = new PlacesAdapter(this);
+        list.setAdapter(adapter);
+        adapter.submitList(filtered);
     }
 
     @Override

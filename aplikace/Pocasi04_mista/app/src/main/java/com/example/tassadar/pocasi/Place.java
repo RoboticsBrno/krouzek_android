@@ -38,7 +38,6 @@ public class Place {
         try {
             InputStream in = assets.open("places.csv");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
             while(true) {
                 String line = reader.readLine();
                 if (line == null)

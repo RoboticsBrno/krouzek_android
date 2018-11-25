@@ -10,18 +10,13 @@
         android:id="@+id/placeName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Místo"
         android:textSize="24sp" />
 
     <TextView
         android:id="@+id/areaName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:text="Oblast" />
 
-    <View android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#ddd"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"/>
 </LinearLayout>

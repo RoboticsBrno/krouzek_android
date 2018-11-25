@@ -19,7 +19,7 @@ public class PlacesAdapter extends ListAdapter<Place, PlacesAdapter.ViewHolder> 
         void OnPlaceClicked(Place p);
     }
 
-    OnPlaceClickedListener mListener;
+    private OnPlaceClickedListener mListener;
 
     PlacesAdapter(OnPlaceClickedListener listener) {
         super(Place.DIFF_CALLBACK);
