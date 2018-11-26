@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.OnPlaceClickedListener {
     private ArrayList<Place> mPlaces;
@@ -36,16 +37,13 @@ public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.O
         list.setAdapter(adapter);
 
         mPlaces = Place.getAll(getAssets());
-        adapter.submitList(mPlaces);
+        adapter.setPlaces(mPlaces);
 
         EditText hledat = findViewById(R.id.searchText);
         hledat.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence s, int i, int i1, int i2) { }
+            public void onTextChanged(CharSequence s, int i, int i1, int i2) { }
 
-            @Override
             public void afterTextChanged(Editable editable) {
                 filter(editable.toString());
             }
@@ -53,24 +51,21 @@ public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.O
     }
 
     private void filter(String filter) {
-        ArrayList<Place> filtered;
-
         filter = filter.trim().toUpperCase();
+
+        ArrayList<Place> filtered;
         if(filter.isEmpty()) {
            filtered = mPlaces;
         } else {
             filtered = new ArrayList<>();
-            for (Place p : mPlaces) {
-                if (p.name.toUpperCase().contains(filter)) {
+            for (Place p : mPlaces)
+                if (p.name.toUpperCase().contains(filter))
                     filtered.add(p);
-                }
-            }
         }
 
         RecyclerView list = findViewById(R.id.placesList);
-        PlacesAdapter adapter = new PlacesAdapter(this);
-        list.setAdapter(adapter);
-        adapter.submitList(filtered);
+        PlacesAdapter adapter = (PlacesAdapter)list.getAdapter();
+        adapter.setPlaces(filtered);
     }
 
     @Override

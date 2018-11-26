@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class PlacesAdapter extends ListAdapter<Place, PlacesAdapter.ViewHolder> {
+import java.util.List;
+
+public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -20,23 +22,30 @@ public class PlacesAdapter extends ListAdapter<Place, PlacesAdapter.ViewHolder> 
     }
 
     private OnPlaceClickedListener mListener;
+    private List<Place> mPlaces;
 
     PlacesAdapter(OnPlaceClickedListener listener) {
-        super(Place.DIFF_CALLBACK);
+        super();
         mListener = listener;
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public void setPlaces(List<Place> places) {
+        mPlaces = places;
+        notifyDataSetChanged();
+    }
+
+    public int getItemCount() {
+        return mPlaces.size();
+    }
+
+    public ViewHolder onCreateViewHolder( ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_places, viewGroup, false);
         return new ViewHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int pos) {
-        final Place p = getItem(pos);
+    public void onBindViewHolder(ViewHolder viewHolder, int pos) {
+        final Place p = mPlaces.get(pos);
         TextView name = viewHolder.itemView.findViewById(R.id.placeName);
         name.setText(p.name);
 

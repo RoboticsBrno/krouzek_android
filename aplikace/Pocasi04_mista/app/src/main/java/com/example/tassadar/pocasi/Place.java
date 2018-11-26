@@ -18,20 +18,6 @@ public class Place {
     double latitude;
     double longitude;
 
-    static final DiffUtil.ItemCallback<Place> DIFF_CALLBACK = new DiffUtil.ItemCallback<Place>() {
-        @Override
-        public boolean areItemsTheSame(Place place, Place t1) {
-            return place.latitude == t1.latitude &&
-                    place.longitude == t1.longitude &&
-                    place.name.equals(t1.name);
-        }
-
-        @Override
-        public boolean areContentsTheSame(Place place, Place t1) {
-            return areItemsTheSame(place, t1);
-        }
-    };
-
     static ArrayList<Place> getAll(AssetManager assets) {
         ArrayList<Place> result = new ArrayList<>();
 
