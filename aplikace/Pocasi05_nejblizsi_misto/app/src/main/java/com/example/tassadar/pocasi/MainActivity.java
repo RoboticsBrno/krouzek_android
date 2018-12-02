@@ -65,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                String url = String.format("http://aladin.spekacek.com/meteorgram/endpoint-v2/" +
+                updatePlaceName(latitude, longitude);
+
+                String url = String.format(Locale.US, "http://aladin.spekacek.com/meteorgram/endpoint-v2/" +
                         "getWeatherInfo?latitude=%f&longitude=%f", latitude, longitude);
                 GetForecastTask task = new GetForecastTask(MainActivity.this);
                 task.execute(url);
@@ -78,6 +80,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 getCurrentLocation();
+            }
+        });
+
+        TextView place = findViewById(R.id.place);
+        place.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText latView = findViewById(R.id.latitude);
+                EditText lonView = findViewById(R.id.longitude);
+
+                Uri uri = Uri.parse(String.format("geo:0,0?q=%s,%s", latView.getText(), lonView.getText()));
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
             }
         });
     }
@@ -120,8 +136,13 @@ public class MainActivity extends AppCompatActivity {
         EditText latView = findViewById(R.id.latitude);
         EditText lonView = findViewById(R.id.longitude);
 
-        latView.setText(String.valueOf(data.getDoubleExtra("latitude", 0)));
-        lonView.setText(String.valueOf(data.getDoubleExtra("longitude", 0)));
+        double lat = data.getDoubleExtra("latitude", 0);
+        double lon = data.getDoubleExtra("longitude", 0);
+
+        updatePlaceName(lat, lon);
+
+        latView.setText(String.valueOf(lat));
+        lonView.setText(String.valueOf(lon));
     }
 
     public void onForecastLoaded(String forecastJson) {
@@ -189,16 +210,13 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                updatePlaceName(location.getLatitude(), location.getLongitude());
+
                 EditText latView = findViewById(R.id.latitude);
                 EditText lonView = findViewById(R.id.longitude);
                 latView.setText(String.valueOf(location.getLatitude()));
                 lonView.setText(String.valueOf(location.getLongitude()));
                 txt.setText("");
-
-                /*Uri gmmIntentUri = Uri.parse(String.format("geo:0,0?q=%.4f,%.4f", location.getLatitude(), location.getLongitude()));
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);*/
             }
         });
     }
@@ -208,5 +226,12 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             this.getCurrentLocation();
         }
+    }
+
+    private void updatePlaceName(double lat, double lon) {
+        Place closest = Place.getClosest(getAssets(), lat, lon);
+
+        TextView placeInfo = findViewById(R.id.place);
+        placeInfo.setText(closest.name + ", " + closest.area);
     }
 }

@@ -11,12 +11,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Place {
     String name;
     String area;
     double latitude;
     double longitude;
+
+    double distanceTo(double lat, double lon) {
+        return Math.sqrt(
+                Math.pow(lat - this.latitude, 2) +
+                Math.pow(lon - this.longitude, 2)
+        );
+    }
 
     static ArrayList<Place> getAll(AssetManager assets) {
         ArrayList<Place> result = new ArrayList<>();
@@ -43,5 +51,20 @@ public class Place {
             e.printStackTrace();
         }
         return result;
+    }
+
+    static Place getClosest(AssetManager assets, double lat, double lon) {
+        List<Place> places = getAll(assets);
+
+        Place closest = places.get(0);
+        double closestDist = closest.distanceTo(lat, lon);
+        for(Place p : places) {
+            double curDist = p.distanceTo(lat, lon);
+            if(curDist < closestDist) {
+                closest = p;
+                closestDist = curDist;
+            }
+        }
+        return closest;
     }
 }
