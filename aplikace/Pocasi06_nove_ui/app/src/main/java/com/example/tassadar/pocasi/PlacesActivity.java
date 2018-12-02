@@ -75,6 +75,7 @@ public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.O
         data.putExtra("area", p.area);
         data.putExtra("latitude", p.latitude);
         data.putExtra("longitude", p.longitude);
+        data.putExtra("place", p);
         setResult(RESULT_OK, data);
         finish();
     }

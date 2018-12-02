@@ -34,13 +34,17 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GetForecastTask.OnForecastLoadedListener {
     FusedLocationProviderClient mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startActivity(new Intent(this, ForecastActivity.class));
+        finish();
+
         EditText latView = findViewById(R.id.latitude);
         EditText lonView = findViewById(R.id.longitude);
 

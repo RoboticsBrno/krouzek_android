@@ -10,10 +10,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Place {
+public class Place implements Serializable {
     String name;
     String area;
     double latitude;

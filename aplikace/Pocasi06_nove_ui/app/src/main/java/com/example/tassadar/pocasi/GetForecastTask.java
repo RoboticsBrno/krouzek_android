@@ -15,10 +15,14 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class GetForecastTask extends AsyncTask<String, Void, String> {
-    private MainActivity m_activity;
+    interface OnForecastLoadedListener {
+        void onForecastLoaded(String forecastJson);
+    }
 
-    public GetForecastTask(MainActivity act) {
-        m_activity = act;
+    private OnForecastLoadedListener m_listener;
+
+    public GetForecastTask(OnForecastLoadedListener listener) {
+        m_listener = listener;
     }
 
     @Override
@@ -49,6 +53,6 @@ public class GetForecastTask extends AsyncTask<String, Void, String> {
     }
 
     protected void onPostExecute(String result) {
-        m_activity.onForecastLoaded(result);
+        m_listener.onForecastLoaded(result);
     }
 }
