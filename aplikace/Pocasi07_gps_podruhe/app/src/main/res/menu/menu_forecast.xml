@@ -11,4 +11,9 @@
         android:id="@+id/refresh"
         android:title="Aktualizovat"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/gps"
+        android:title="GPS"
+        app:showAsAction="always" />
 </menu>
