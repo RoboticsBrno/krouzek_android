@@ -168,12 +168,21 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
                 return;
             }
 
+            JSONArray rain = params.getJSONArray("PRECIPITATION_TOTAL");
+            JSONArray clouds = params.getJSONArray("CLOUDS_TOTAL");
+            JSONArray wind = params.getJSONArray("WIND_SPEED");
+            JSONArray pressure = params.getJSONArray("PRESSURE");
+
             long forecastMs = dateForecast.getTime();
             List<ForecastItem> items = new ArrayList<>();
             for(int i = nowIndex; i < temp.length(); ++i) {
                 ForecastItem it = new ForecastItem();
                 it.date = new Date(forecastMs + i*60*60*1000);
                 it.temperature = temp.getDouble(i);
+                it.rain = rain.getDouble(i);
+                it.clouds = clouds.getDouble(i);
+                it.wind = wind.getDouble(i);
+                it.pressure = pressure.getDouble(i);
                 items.add(it);
             }
 

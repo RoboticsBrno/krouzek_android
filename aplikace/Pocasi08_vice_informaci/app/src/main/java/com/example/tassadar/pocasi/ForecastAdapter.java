@@ -49,5 +49,17 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
         TextView date = viewHolder.itemView.findViewById(R.id.date);
         date.setText(mDateFormat.format(it.date));
+
+        TextView rain = viewHolder.itemView.findViewById(R.id.rain);
+        rain.setText(String.format("%.1f mm/h", it.rain));
+
+        TextView clouds = viewHolder.itemView.findViewById(R.id.clouds);
+        clouds.setText(String.format("%.0f %%", it.clouds*100));
+
+        TextView wind = viewHolder.itemView.findViewById(R.id.wind);
+        wind.setText(String.format("%.1f\nm/s", it.wind));
+
+        TextView pressure = viewHolder.itemView.findViewById(R.id.pressure);
+        pressure.setText(String.format("%.1f hPa", it.pressure / 100));
     }
 }
