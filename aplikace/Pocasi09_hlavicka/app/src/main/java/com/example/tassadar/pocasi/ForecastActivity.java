@@ -187,6 +187,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
             }
 
             mAdapter.setList(items);
+            fillHeader(items);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -230,5 +231,36 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
         if(requestCode == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             this.getCurrentLocation();
         }
+    }
+
+    private void fillHeader(List<ForecastItem> items) {
+        double temp = 0;
+        double rain = 0;
+        double wind = 0;
+        double clouds = 0;
+
+        int count = Math.min(12, items.size());
+        if(count == 0)
+            return;
+
+        for(int i = 0; i < count; ++i) {
+            ForecastItem it = items.get(i);
+            temp += it.temperature;
+            rain += it.rain;
+            wind += it.wind;
+            clouds += it.clouds;
+        }
+
+        TextView t = findViewById(R.id.headerTemp);
+        t.setText(String.format("%.1f°", temp/count));
+
+        t = findViewById(R.id.headerRain);
+        t.setText(String.format("%.1f mm/%dh", rain, count));
+
+        t = findViewById(R.id.headerWind);
+        t.setText(String.format("%.1f m/s", wind/count));
+
+        t = findViewById(R.id.headerClouds);
+        t.setText(String.format("%.0f %%", (clouds/count)*100));
     }
 }
