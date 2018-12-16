@@ -42,6 +42,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
     private Place mPlace;
     private ForecastAdapter mAdapter;
     private FusedLocationProviderClient mLocation;
+    private boolean mAutoGps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +64,12 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
             setPlace(p);
         }
 
-        refresh();
+        mAutoGps = pref.getBoolean("autoGps", false);
+        if(mAutoGps) {
+            getCurrentLocation();
+        } else {
+            refresh();
+        }
     }
 
     protected void onPause() {
@@ -74,6 +80,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
             SharedPreferences.Editor editor = pref.edit();
             editor.putFloat("latitude", (float) mPlace.latitude);
             editor.putFloat("longitude", (float) mPlace.longitude);
+            editor.putBoolean("autoGps", mAutoGps);
             editor.apply();
         }
     }
@@ -91,9 +98,14 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
                 startActivityForResult(i, 0);
                 return true;
             case R.id.refresh:
-                refresh();
+                if(mAutoGps) {
+                    getCurrentLocation();
+                } else {
+                    refresh();
+                }
                 return true;
             case R.id.gps:
+                mAutoGps = true;
                 getCurrentLocation();
                 return true;
             default:
@@ -106,6 +118,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
             return;
         }
 
+        mAutoGps = false;
         setPlace((Place)data.getSerializableExtra("place"));
         refresh();
     }
@@ -128,8 +141,13 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
     private void setPlace(Place place) {
         mPlace = place;
 
+        String text = place.name + ", " + place.area;
+        if(mAutoGps) {
+            text = "*" + text;
+        }
+
         TextView placeText = findViewById(R.id.place);
-        placeText.setText(place.name + ", " + place.area);
+        placeText.setText(text);
     }
 
     @Override
