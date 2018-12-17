@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/pickPlace"
+        android:title="Místo"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/refresh"
+        android:title="Aktualizovat"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/gps"
+        android:title="GPS"
+        app:showAsAction="always" />
+</menu>
