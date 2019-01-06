@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +49,14 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
+
+        View header = findViewById(R.id.forecastHeader);
+        ((TextView)header.findViewById(R.id.date)).setText("Čas");
+        ((TextView)header.findViewById(R.id.temperature)).setText("Teplota");
+        ((TextView)header.findViewById(R.id.rain)).setText("Déšť");
+        ((TextView)header.findViewById(R.id.clouds)).setText("Oblačnost");
+        ((TextView)header.findViewById(R.id.wind)).setText("Vítr");
+        ((TextView)header.findViewById(R.id.pressure)).setText("Tlak");
 
         mLocation = LocationServices.getFusedLocationProviderClient(this);
         mAdapter = new ForecastAdapter();

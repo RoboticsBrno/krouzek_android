@@ -69,6 +69,19 @@
 
     </LinearLayout>
 
+    <View android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#aaa"
+        android:layout_margin="8dp" />
+
+    <include
+        android:id="@+id/forecastHeader"
+        layout="@layout/item_forecast"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/forecastList"
         android:layout_width="match_parent"
@@ -76,7 +89,6 @@
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp" />
