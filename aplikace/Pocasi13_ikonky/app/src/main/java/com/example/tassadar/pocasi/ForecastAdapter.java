@@ -1,11 +1,13 @@
 package com.example.tassadar.pocasi;
 
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -53,8 +55,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         TextView rain = viewHolder.itemView.findViewById(R.id.rain);
         rain.setText(String.format("%.1f mm/h", it.rain));
 
-        TextView clouds = viewHolder.itemView.findViewById(R.id.clouds);
-        clouds.setText(String.format("%.0f %%", it.clouds*100));
+        Resources res = viewHolder.itemView.getContext().getResources();
+        int iconId = res.getIdentifier(it.icon, "drawable", BuildConfig.APPLICATION_ID);
+        ImageView icon = viewHolder.itemView.findViewById(R.id.icon);
+        icon.setImageDrawable(res.getDrawable(iconId));
 
         TextView wind = viewHolder.itemView.findViewById(R.id.wind);
         wind.setText(String.format("%.1f\nm/s", it.wind));

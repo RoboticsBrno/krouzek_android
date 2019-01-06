@@ -54,7 +54,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
         ((TextView)header.findViewById(R.id.date)).setText("Čas");
         ((TextView)header.findViewById(R.id.temperature)).setText("Teplota");
         ((TextView)header.findViewById(R.id.rain)).setText("Déšť");
-        ((TextView)header.findViewById(R.id.clouds)).setText("Oblačnost");
+        header.findViewById(R.id.icon).setBackgroundColor(0);
         ((TextView)header.findViewById(R.id.wind)).setText("Vítr");
         ((TextView)header.findViewById(R.id.pressure)).setText("Tlak");
 
@@ -200,6 +200,8 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
             JSONArray wind = params.getJSONArray("WIND_SPEED");
             JSONArray pressure = params.getJSONArray("PRESSURE");
 
+            JSONArray icons = forecast.getJSONArray("weatherIconNames");
+
             long forecastMs = dateForecast.getTime();
             List<ForecastItem> items = new ArrayList<>();
             for(int i = nowIndex; i < temp.length(); ++i) {
@@ -210,6 +212,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
                 it.clouds = clouds.getDouble(i);
                 it.wind = wind.getDouble(i);
                 it.pressure = pressure.getDouble(i);
+                it.icon = icons.getString(i/2);
                 items.add(it);
             }
 

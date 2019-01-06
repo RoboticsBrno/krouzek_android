@@ -10,4 +10,5 @@ public class ForecastItem implements Serializable {
     double clouds;
     double wind;
     double pressure;
+    String icon;
 }
