@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_marginBottom="10dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_margin="2dp"
+        app:autoSizeTextType="uniform"
+        android:text="16:00Sun" />
+
+    <TextView
+        android:id="@+id/temperature"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        android:gravity="center"
+        android:textColor="#c28323"
+        android:text="15.6°"
+        app:autoSizeTextType="uniform" />
+
+    <View android:layout_weight="1"
+        android:layout_height="0dp"
+        android:layout_width="0dp"/>
+
+    <TextView
+        android:id="@+id/rain"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        android:text="0.3 mm/h"
+        android:textColor="#3f3fa3"
+        android:gravity="center"
+        app:autoSizeTextType="uniform" />
+
+    <View android:layout_weight="1"
+        android:layout_height="0dp"
+        android:layout_width="0dp"/>
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/black_circle"
+        android:padding="3dp"/>
+
+    <View android:layout_weight="1"
+        android:layout_height="0dp"
+        android:layout_width="0dp"/>
+
+    <TextView
+        android:id="@+id/wind"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        android:text="3 m/s"
+        android:textColor="#3e9142"
+        android:gravity="center"
+        app:autoSizeTextType="uniform" />
+
+    <View android:layout_weight="1"
+        android:layout_height="0dp"
+        android:layout_width="0dp"/>
+
+    <TextView
+        android:id="@+id/pressure"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        android:text="1001.3 hPa"
+        android:textColor="#3e9142"
+        android:gravity="center"
+        app:autoSizeTextType="uniform" />
+
+</LinearLayout>
