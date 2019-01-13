@@ -1,5 +1,6 @@
 package com.example.tassadar.pocasi;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Pair;
 
@@ -30,6 +31,9 @@ public class GetForecastTask extends AsyncTask<String, Void, String> {
         try {
             URL url = new URL(urls[0]);
             URLConnection conn = url.openConnection();
+
+            conn.setConnectTimeout(30000);
+            conn.setReadTimeout(30000);
 
             InputStream body = conn.getInputStream();
 

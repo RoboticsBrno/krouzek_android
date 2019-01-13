@@ -1,6 +1,8 @@
 package com.example.tassadar.pocasi;
 
 import android.Manifest;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -65,7 +67,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(mAdapter);
 
-        SharedPreferences pref = getPreferences(MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences("", MODE_PRIVATE);
         if(pref.contains("latitude")) {
             double latitude = pref.getFloat("latitude", 0);
             double longitude = pref.getFloat("longitude", 0);
@@ -85,7 +87,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
         super.onPause();
 
         if(mPlace != null) {
-            SharedPreferences pref = getPreferences(MODE_PRIVATE);
+            SharedPreferences pref = getSharedPreferences("", MODE_PRIVATE);
             SharedPreferences.Editor editor = pref.edit();
             editor.putFloat("latitude", (float) mPlace.latitude);
             editor.putFloat("longitude", (float) mPlace.longitude);
@@ -140,10 +142,7 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
         }
 
         mAdapter.setList(null);
-
-        String url = String.format(Locale.US,
-                "http://aladin.spekacek.com/meteorgram/endpoint-v2/" +
-                "getWeatherInfo?latitude=%f&longitude=%f", mPlace.latitude, mPlace.longitude);
+        String url = String.format(Locale.US, Api.URL_TEMPLATE, mPlace.latitude, mPlace.longitude);
         new GetForecastTask(this).execute(url);
     }
 
@@ -170,24 +169,8 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
         }
 
         try {
-            JSONObject forecast = new JSONObject(forecastJson);
-
-            String forecastTimeIso = forecast.getString("forecastTimeIso");
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            df.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
-            Date dateForecast = df.parse(forecastTimeIso);
-
-            Date dateNow = new Date();
-
-            int nowIndex = 0;
-            if (dateNow.after(dateForecast)) {
-                long diffMs = (dateNow.getTime() - dateForecast.getTime());
-                nowIndex = (int) (diffMs / (3600 * 1000));
-            }
-
-            JSONObject params = forecast.getJSONObject("parameterValues");
-            JSONArray temp = params.getJSONArray("TEMPERATURE");
-            if (nowIndex > temp.length()) {
+            List<ForecastItem> items = Api.parse(forecastJson);
+            if(items.size() == 0) {
                 AlertDialog.Builder b = new AlertDialog.Builder(this);
                 b.setMessage("Informace o počasí jsou moc staré!")
                         .setPositiveButton("OK", null)
@@ -195,29 +178,22 @@ public class ForecastActivity extends AppCompatActivity implements GetForecastTa
                 return;
             }
 
-            JSONArray rain = params.getJSONArray("PRECIPITATION_TOTAL");
-            JSONArray clouds = params.getJSONArray("CLOUDS_TOTAL");
-            JSONArray wind = params.getJSONArray("WIND_SPEED");
-            JSONArray pressure = params.getJSONArray("PRESSURE");
-
-            JSONArray icons = forecast.getJSONArray("weatherIconNames");
-
-            long forecastMs = dateForecast.getTime();
-            List<ForecastItem> items = new ArrayList<>();
-            for(int i = nowIndex; i < temp.length(); ++i) {
-                ForecastItem it = new ForecastItem();
-                it.date = new Date(forecastMs + i*60*60*1000);
-                it.temperature = temp.getDouble(i);
-                it.rain = rain.getDouble(i);
-                it.clouds = clouds.getDouble(i);
-                it.wind = wind.getDouble(i);
-                it.pressure = pressure.getDouble(i);
-                it.icon = icons.getString(i/2);
-                items.add(it);
-            }
+            SharedPreferences.Editor editor = getSharedPreferences("", MODE_PRIVATE).edit();
+            editor.putString("forecastJson", forecastJson);
+            editor.putLong("forecastTime", new Date().getTime());
+            editor.apply();
 
             mAdapter.setList(items);
             fillHeader(items);
+
+            AppWidgetManager man = AppWidgetManager.getInstance(this);
+            int[] appWidgetIds = man.getAppWidgetIds(new ComponentName(this, WidgetReceiver.class));
+            if(appWidgetIds != null && appWidgetIds.length > 0) {
+                Intent i = new Intent(this, WidgetReceiver.class);
+                i.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                i.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
+                sendBroadcast(i);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
