@@ -1,6 +1,7 @@
 package com.example.tassadar.senzory;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.support.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.tassadar.senzory.sensors.Compass;
+import com.example.tassadar.senzory.sensors.Temperature;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout mDrawerLayout;
@@ -25,12 +27,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private BaseSensor mActiveSensor;
 
     private static Class<?>[] sensorClasses = new Class<?>[]{
-            Compass.class
+            Compass.class,
+            Temperature.class,
     };
 
     @Override
-    protected void onCreate(Bundle state) {
-        super.onCreate(state);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -46,8 +49,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initSensors();
 
-        if (state != null && state.containsKey("sensor")) {
-            setActiveSensor(state.getString("sensor"));
+        if (savedInstanceState != null && savedInstanceState.containsKey("sensor")) {
+            setActiveSensor(savedInstanceState.getString("sensor"));
+        } else {
+            SharedPreferences pref = getSharedPreferences("", MODE_PRIVATE);
+            if(pref.contains("sensor")) {
+                setActiveSensor(pref.getString("sensor", ""));
+            }
         }
     }
 
@@ -61,6 +69,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (mActiveSensor != null)
             state.putString("sensor", mActiveSensor.getClass().getSimpleName());
+    }
+
+    protected void onPause() {
+        super.onPause();
+
+        SharedPreferences.Editor e = getSharedPreferences("", MODE_PRIVATE).edit();
+        if (mActiveSensor != null) {
+            e.putString("sensor", mActiveSensor.getClass().getSimpleName());
+        } else {
+            e.remove("sensor");
+        }
+        e.apply();
     }
 
     @Override
