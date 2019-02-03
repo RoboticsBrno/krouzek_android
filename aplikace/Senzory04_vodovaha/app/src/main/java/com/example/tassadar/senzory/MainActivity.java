@@ -20,6 +20,7 @@ import android.view.View;
 
 import com.example.tassadar.senzory.sensors.Compass;
 import com.example.tassadar.senzory.sensors.Sound;
+import com.example.tassadar.senzory.sensors.SpiritLevel;
 import com.example.tassadar.senzory.sensors.Temperature;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Compass.class,
             Temperature.class,
             Sound.class,
+            SpiritLevel.class,
     };
 
     @Override

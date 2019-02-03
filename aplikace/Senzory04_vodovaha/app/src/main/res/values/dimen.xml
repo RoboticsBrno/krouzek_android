@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="spiritlevel_linewidth">2dp</dimen>
+    <dimen name="spiritlevel_bubbleradius">32dp</dimen>
+    <dimen name="spiritlevel_textsize">20sp</dimen>
+</resources>
