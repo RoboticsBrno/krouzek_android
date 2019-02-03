@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/sound"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="0 dB" />
+
+    <com.tasssadar.voicerecordingvisualizer.VisualizerView
+        android:id="@+id/visualizer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        app:numColumns="200"
+        app:renderColor="@color/colorAccent"
+        app:renderRange="both"
+        app:renderType="bar" />
+
+</LinearLayout>
