@@ -22,6 +22,7 @@ import com.example.tassadar.senzory.sensors.Compass;
 import com.example.tassadar.senzory.sensors.Sound;
 import com.example.tassadar.senzory.sensors.SpiritLevel;
 import com.example.tassadar.senzory.sensors.Temperature;
+import com.example.tassadar.senzory.sensors.Touch;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout mDrawerLayout;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Temperature.class,
             Sound.class,
             SpiritLevel.class,
+            Touch.class,
     };
 
     @Override

@@ -4,4 +4,19 @@
     <color name="colorPrimaryDark">#b61827</color>
     <color name="colorAccent">#fdd835</color>
     <color name="spiritlevel_leveled">#4CAF50</color>
+
+    <array name="touch_fingers">
+        <item>#F44336</item>
+        <item>#4CAF50</item>
+        <item>#3F51B5</item>
+        <item>#FF9800</item>
+        <item>#03A9F4</item>
+        <item>#26A69A</item>
+        <item>#CDDC39</item>
+        <item>#9C27B0</item>
+        <item>#FFEB3B</item>
+        <item>#FF8A65</item>
+        <item>#795548</item>
+        <item>#455A64</item>
+    </array>
 </resources>
