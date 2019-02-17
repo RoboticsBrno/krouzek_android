@@ -27,10 +27,6 @@ public class GameData {
     private float mBlockTimer;
     private int mBlockIdx;
 
-    public GameData() {
-        reset();
-    }
-
     public synchronized void reset() {
         durationMs = 0;
         groundBarsOffset = 0.f;
@@ -41,10 +37,23 @@ public class GameData {
             blocks[i] = 0;
         }
 
-        mBlockTimer = 5000;
+        mBlockTimer = 2500;
         mJumpProgress = 0.f;
         mJumpState = 0;
         mBlockIdx = 0;
+    }
+
+    public GameData() {
+        reset();
+    }
+
+    public synchronized  void jump() {
+        if(collision) {
+            reset();
+        } else if(mJumpState == 0) {
+            mJumpState = 1;
+            mJumpProgress = 0.f;
+        }
     }
 
     private void handleJump(float diffMs) {
@@ -75,31 +84,22 @@ public class GameData {
 
         handleJump(diffMs);
 
-        for(int i = 0; i < blocks.length; ++i) {
-            if(blocks.length > 0.f) {
+        for (int i = 0; i < blocks.length; ++i) {
+            if (blocks.length > 0.f) {
                 blocks[i] -= SPEED_PLAYER * diffMs;
-                if(blocks[i] > COLLISION_MIN && blocks[i] < COLLISION_MAX && jumpOffset < 1.f/PLAYER_JUMP_MULT) {
+                if (blocks[i] > COLLISION_MIN && blocks[i] < COLLISION_MAX && jumpOffset < 1.f / PLAYER_JUMP_MULT) {
                     collision = true;
                 }
             }
         }
 
-        if(mBlockTimer <= diffMs) {
+        if (mBlockTimer <= diffMs) {
             blocks[mBlockIdx] = 1.f;
             mBlockIdx = (mBlockIdx + 1) % blocks.length;
-            mBlockTimer = TIME_MIN_BLOCK_DELAY + ((float)Math.random())*TIME_MAX_BLOCK_DELAY;
+            mBlockTimer = TIME_MIN_BLOCK_DELAY + ((float) Math.random()) * TIME_MAX_BLOCK_DELAY;
         } else {
             mBlockTimer -= diffMs;
         }
         return collision;
-    }
-
-    public synchronized  void jump() {
-        if(collision) {
-            reset();
-        } else if(mJumpState == 0) {
-            mJumpState = 1;
-            mJumpProgress = 0.f;
-        }
     }
 }

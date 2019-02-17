@@ -29,25 +29,6 @@ public class GameView extends View {
 
     private GameData mData;
 
-    public GameView(Context context) {
-        super(context);
-        init();
-    }
-
-    public GameView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    public GameView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    public void setData(GameData data) {
-        mData = data;
-    }
-
     private void init() {
         setClickable(true);
 
@@ -69,6 +50,31 @@ public class GameView extends View {
         mPaintBlock.setColor(res.getColor(R.color.block));
     }
 
+    public GameView(Context context) {
+        super(context);
+        init();
+    }
+
+    public GameView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    public GameView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    public void setData(GameData data) {
+        mData = data;
+    }
+
+    public boolean performClick() {
+        super.performClick();
+        mData.jump();
+        return true;
+    }
+
     protected void onSizeChanged (int w, int h, int oldw, int oldh) {
         final float split = 0.70f;
         mSky = new Rect(0, 0, w, (int)(h*split));
@@ -78,8 +84,7 @@ public class GameView extends View {
 
         int playerW = (int) (w * GameData.PLAYER_WIDTH);
         mPlayer = new Rect(0, 0, playerW, playerW);
-
-        mPlayer.offsetTo((int)(w*GameData.PLAYER_POSITION), mGround.top - mPlayer.height());
+        mPlayer.offsetTo((int)(w*GameData.PLAYER_POSITION), mGround.top - playerW);
 
         mGroundBars = new Rect[8];
         int barWidth = w / (mGroundBars.length*3);
@@ -123,11 +128,5 @@ public class GameView extends View {
             canvas.drawRect(mPlayer, mPaintPlayer);
             canvas.restore();
         }
-    }
-
-    public boolean performClick() {
-        super.performClick();
-        mData.jump();
-        return true;
     }
 }
