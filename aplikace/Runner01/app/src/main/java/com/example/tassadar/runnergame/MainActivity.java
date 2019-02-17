@@ -26,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
 
         GameView view = findViewById(R.id.gameView);
         view.setData(mData);
+
+        mThread = new GameThread(mData, view);
+        mThread.start();
+        mThread.setPaused(false);
+
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,10 +39,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        mThread = new GameThread(mData, view);
-        mThread.start();
-        mThread.setPaused(false);
     }
 
     protected void onPause() {

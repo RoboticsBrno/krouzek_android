@@ -31,22 +31,20 @@ public class GameData {
         reset();
     }
 
-    public void reset() {
-        synchronized (this) {
-            durationMs = 0;
-            groundBarsOffset = 0.f;
-            jumpOffset = 0.f;
-            collision = false;
+    public synchronized void reset() {
+        durationMs = 0;
+        groundBarsOffset = 0.f;
+        jumpOffset = 0.f;
+        collision = false;
 
-            for (int i = 0; i < blocks.length; ++i) {
-                blocks[i] = 0;
-            }
-
-            mBlockTimer = 5000;
-            mJumpProgress = 0.f;
-            mJumpState = 0;
-            mBlockIdx = 0;
+        for (int i = 0; i < blocks.length; ++i) {
+            blocks[i] = 0;
         }
+
+        mBlockTimer = 5000;
+        mJumpProgress = 0.f;
+        mJumpState = 0;
+        mBlockIdx = 0;
     }
 
     private void handleJump(float diffMs) {
@@ -71,46 +69,37 @@ public class GameData {
         }
     }
 
-    public boolean update(float diffMs) {
-        boolean crashed = false;
-        synchronized (this) {
-            durationMs += diffMs;
-            groundBarsOffset = (groundBarsOffset + SPEED_PLAYER * diffMs * 7.5f) % 1.0f;
+    public synchronized boolean update(float diffMs) {
+        durationMs += diffMs;
+        groundBarsOffset = (groundBarsOffset + SPEED_PLAYER * diffMs * 7.5f) % 1.0f;
 
-            handleJump(diffMs);
+        handleJump(diffMs);
 
-            for(int i = 0; i < blocks.length; ++i) {
-                if(blocks.length > 0.f) {
-                    blocks[i] -= SPEED_PLAYER * diffMs;
-                    if(blocks[i] > COLLISION_MIN && blocks[i] < COLLISION_MAX && jumpOffset < 1.f/PLAYER_JUMP_MULT) {
-                        collision = true;
-                        crashed = true;
-                    }
+        for(int i = 0; i < blocks.length; ++i) {
+            if(blocks.length > 0.f) {
+                blocks[i] -= SPEED_PLAYER * diffMs;
+                if(blocks[i] > COLLISION_MIN && blocks[i] < COLLISION_MAX && jumpOffset < 1.f/PLAYER_JUMP_MULT) {
+                    collision = true;
                 }
             }
-
-            if(mBlockTimer <= diffMs) {
-                blocks[mBlockIdx] = 1.f;
-                mBlockIdx = (mBlockIdx + 1) % blocks.length;
-                mBlockTimer = TIME_MIN_BLOCK_DELAY + ((float)Math.random())*TIME_MAX_BLOCK_DELAY;
-            } else {
-                mBlockTimer -= diffMs;
-            }
         }
-        return crashed;
+
+        if(mBlockTimer <= diffMs) {
+            blocks[mBlockIdx] = 1.f;
+            mBlockIdx = (mBlockIdx + 1) % blocks.length;
+            mBlockTimer = TIME_MIN_BLOCK_DELAY + ((float)Math.random())*TIME_MAX_BLOCK_DELAY;
+        } else {
+            mBlockTimer -= diffMs;
+        }
+        return collision;
     }
 
-    public void jump() {
-        synchronized (this) {
-            if(collision) {
-                reset();
-                return;
-            }
-
-            if(mJumpState == 0) {
-                mJumpState = 1;
-                mJumpProgress = 0.f;
-            }
+    public synchronized  void jump() {
+        if(collision) {
+            reset();
+        } else if(mJumpState == 0) {
+            mJumpState = 1;
+            mJumpProgress = 0.f;
         }
     }
 }

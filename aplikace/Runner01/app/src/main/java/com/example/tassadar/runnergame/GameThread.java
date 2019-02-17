@@ -8,7 +8,7 @@ public class GameThread extends Thread {
     private static final int UPDATE_RATE = 60;
     private static final long OPTIMAL_PERIOD = 1_000_000_000 / UPDATE_RATE;
 
-    private AtomicBoolean mPaused = new AtomicBoolean(true);
+    private AtomicBoolean mPaused;
     private GameData mData;
     private View mGameView;
 
@@ -18,6 +18,7 @@ public class GameThread extends Thread {
 
         mData = data;
         mGameView = gameView;
+        mPaused = new AtomicBoolean(true);
     }
 
     public void setPaused(boolean paused) {
@@ -32,6 +33,7 @@ public class GameThread extends Thread {
         long now, sleepMs;
         float diffMs;
         long previous = System.nanoTime();
+
         while(!this.isInterrupted()) {
             now = System.nanoTime();
             diffMs = (float)(now - previous) / 1_000_000;
@@ -48,7 +50,6 @@ public class GameThread extends Thread {
             try {
                 Thread.sleep(sleepMs);
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 return;
             }
         }
