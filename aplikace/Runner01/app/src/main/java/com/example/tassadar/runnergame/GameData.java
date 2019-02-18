@@ -4,6 +4,7 @@ public class GameData {
     public static final float PLAYER_POSITION = 0.33f;
     public static final float PLAYER_WIDTH = 1.f / 20.f;
     public static final float PLAYER_JUMP_MULT = 3.f;
+    public static final float GROUND_BARS = 8;
 
     private static final float COLLISION_MIN = PLAYER_POSITION - PLAYER_WIDTH*0.9f;
     private static final float COLLISION_MAX = PLAYER_POSITION + PLAYER_WIDTH*0.9f;
@@ -80,7 +81,7 @@ public class GameData {
 
     public synchronized boolean update(float diffMs) {
         durationMs += diffMs;
-        groundBarsOffset = (groundBarsOffset + SPEED_PLAYER * diffMs * 7.5f) % 1.0f;
+        groundBarsOffset = (groundBarsOffset + SPEED_PLAYER * diffMs * (GROUND_BARS - 0.5f)) % 1.0f;
 
         handleJump(diffMs);
 

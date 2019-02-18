@@ -86,7 +86,7 @@ public class GameView extends View {
         mPlayer = new Rect(0, 0, playerW, playerW);
         mPlayer.offsetTo((int)(w*GameData.PLAYER_POSITION), mGround.top - playerW);
 
-        mGroundBars = new Rect[8];
+        mGroundBars = new Rect[(int)GameData.GROUND_BARS];
         int barWidth = w / (mGroundBars.length*3);
         int barSpace = (w - barWidth*mGroundBars.length) / (mGroundBars.length - 1);
         int x = barSpace;
