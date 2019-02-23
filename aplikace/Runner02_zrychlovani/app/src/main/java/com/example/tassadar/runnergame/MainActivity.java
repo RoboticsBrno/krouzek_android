@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mThread.isPaused()) {
-                    mThread.setPaused(false);
+                if(mThread.isPaused() && mThread.setPaused(false)) {
+                    mData.resetIfColision();
                 }
             }
         });

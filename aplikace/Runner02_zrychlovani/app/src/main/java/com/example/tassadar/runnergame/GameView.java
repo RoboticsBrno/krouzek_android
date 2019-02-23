@@ -7,11 +7,16 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
 
 public class GameView extends View {
     private Paint mPaintSky;
@@ -20,17 +25,23 @@ public class GameView extends View {
     private Paint mPaintPlayer;
     private Paint mPaintBlock;
 
-    private Rect mSky;
     private Rect mGround;
     private Rect[] mGroundBars;
     private Rect mPlayer;
     private float mGroundBarSpacing;
     private float mJumpHeight;
+    private DecimalFormat mTimeFormat;
+    private StringBuffer mTimeBuffer;
+    private FieldPosition mTimeField;
 
     private GameData mData;
 
     private void init() {
         setClickable(true);
+
+        mTimeFormat = new DecimalFormat("###0.00");
+        mTimeBuffer = new StringBuffer(8);
+        mTimeField = new FieldPosition(0);
 
         Resources res = getResources();
 
@@ -69,22 +80,23 @@ public class GameView extends View {
         mData = data;
     }
 
-    public boolean performClick() {
-        super.performClick();
-        mData.jump();
-        return true;
+    public boolean onTouchEvent(MotionEvent event) {
+        if(event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            mData.jump();
+        }
+        return super.onTouchEvent(event);
     }
 
     protected void onSizeChanged (int w, int h, int oldw, int oldh) {
         final float split = 0.70f;
-        mSky = new Rect(0, 0, w, (int)(h*split));
-        mGround = new Rect(0, mSky.bottom, w, h);
+        mGround = new Rect(0, (int) (h*split), w, h);
 
         mPaintBlock.setTextSize(h/15);
 
         int playerW = (int) (w * GameData.PLAYER_WIDTH);
         mPlayer = new Rect(0, 0, playerW, playerW);
-        mPlayer.offsetTo((int)(w*GameData.PLAYER_POSITION), mGround.top - playerW);
+        mPlayer.offsetTo((int)(w*GameData.PLAYER_POSITION) - playerW/2,
+                mGround.top - playerW);
 
         mGroundBars = new Rect[(int)GameData.GROUND_BARS];
         int barWidth = w / (mGroundBars.length*3);
@@ -104,11 +116,12 @@ public class GameView extends View {
 
         final int w = getWidth();
 
-        canvas.drawRect(mSky, mPaintSky);
+        canvas.drawColor(mPaintSky.getColor());
         canvas.drawRect(mGround, mPaintGround);
 
+        float jumpOffset;
+        double durationMs;
         synchronized (mData) {
-            canvas.drawText(String.format("%.2fs", mData.durationMs/1000.f), 10, mPaintBlock.getTextSize()*2, mPaintBlock);
             canvas.save();
             canvas.translate(-1 * mGroundBarSpacing * mData.groundBarsOffset, 0);
             for (Rect r : mGroundBars) {
@@ -116,17 +129,26 @@ public class GameView extends View {
             }
             canvas.restore();
 
-            for(float off : mData.blocks) {
-                if(off <= 0.f)
+            for(GameData.Block b : mData.blocks) {
+                if(b.pos <= -0.1f)
                     continue;
-                float left = w * off;
-                canvas.drawRect(left, mPlayer.top, left + mPlayer.width(), mPlayer.bottom, mPaintBlock);
+                float left = w * b.pos;
+                float height = b.height * mPlayer.height();
+                canvas.drawRect(left, mPlayer.bottom - height, left + mPlayer.width(), mPlayer.bottom, mPaintBlock);
             }
 
-            canvas.save();
-            canvas.translate(0, -1 * mJumpHeight * mData.jumpOffset);
-            canvas.drawRect(mPlayer, mPaintPlayer);
-            canvas.restore();
+            durationMs = mData.durationMs;
+            jumpOffset = -1 * mJumpHeight * mData.jumpOffset;
         }
+
+        mTimeBuffer.setLength(0);
+        mTimeFormat.format(durationMs / 1000, mTimeBuffer, mTimeField);
+        canvas.drawText(mTimeBuffer.toString(),
+                10, mPaintBlock.getTextSize()*2, mPaintBlock);
+
+        canvas.save();
+        canvas.translate(0, jumpOffset);
+        canvas.drawRect(mPlayer, mPaintPlayer);
+        canvas.restore();
     }
 }

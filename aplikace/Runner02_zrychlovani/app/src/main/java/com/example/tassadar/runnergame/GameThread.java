@@ -11,6 +11,7 @@ public class GameThread extends Thread {
     private AtomicBoolean mPaused;
     private GameData mData;
     private View mGameView;
+    private volatile long mLastColision;
 
     public GameThread(GameData data, View gameView) {
         super();
@@ -21,8 +22,12 @@ public class GameThread extends Thread {
         mPaused = new AtomicBoolean(true);
     }
 
-    public void setPaused(boolean paused) {
+    public boolean setPaused(boolean paused) {
+        if(!paused && System.currentTimeMillis() - mLastColision < 500) {
+            return false;
+        }
         mPaused.set(paused);
+        return true;
     }
 
     public boolean isPaused() {
@@ -42,6 +47,7 @@ public class GameThread extends Thread {
             if(!mPaused.get()) {
                 if(mData.update(diffMs)) {
                     setPaused(true);
+                    mLastColision = System.currentTimeMillis();
                 }
                 mGameView.postInvalidate();
             }
