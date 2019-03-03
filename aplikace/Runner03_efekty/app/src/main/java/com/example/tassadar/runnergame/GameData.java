@@ -1,5 +1,6 @@
 package com.example.tassadar.runnergame;
 
+
 public class GameData {
     public static final class Block {
         float pos;
@@ -25,6 +26,7 @@ public class GameData {
     public Block[] blocks = new Block[(int)(TIME_ONE_LENGTH / (TIME_JUMP*2)) + 1];
     public double durationMs;
     public boolean collision;
+    public float cloudsOffset;
 
     private float mJumpProgress;
     private int mJumpState;
@@ -35,6 +37,7 @@ public class GameData {
     public synchronized void reset() {
         durationMs = 0;
         groundBarsOffset = 0.f;
+        cloudsOffset = 0.f;
         jumpOffset = 0.f;
         collision = false;
 
@@ -109,6 +112,7 @@ public class GameData {
     public synchronized boolean update(float diffMs) {
         durationMs += diffMs;
         groundBarsOffset = (groundBarsOffset + getSpeedPlayer() * diffMs * (GROUND_BARS - 0.5f)) % 1.0f;
+        cloudsOffset += getSpeedPlayer() * diffMs * 200;
 
         handleJump(diffMs);
 
