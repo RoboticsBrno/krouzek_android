@@ -2,6 +2,10 @@ package com.example.tassadar.runnergame;
 
 
 public class GameData {
+    public interface GameListener {
+        void onCollision();
+    };
+
     public static final class Block {
         float pos;
         float height;
@@ -33,6 +37,7 @@ public class GameData {
     private float mBlockTimer;
     private int mBlockIdx;
     private float mTimeCoef;
+    private GameListener mListener;
 
     public synchronized void reset() {
         durationMs = 0;
@@ -52,7 +57,8 @@ public class GameData {
         mTimeCoef = 1.f;
     }
 
-    public GameData() {
+    public GameData(GameListener listener) {
+        mListener = listener;
         for(int i = 0; i < blocks.length; ++i) {
             blocks[i] = new Block();
         }
@@ -123,6 +129,11 @@ public class GameData {
                     collision = true;
                 }
             }
+        }
+
+        if(collision) {
+            mListener.onCollision();
+            return true;
         }
 
         if (mBlockTimer <= diffMs) {
