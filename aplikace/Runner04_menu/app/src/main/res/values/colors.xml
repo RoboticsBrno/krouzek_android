@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF9800</color>
+    <color name="colorPrimaryDark">#EF6C00</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="sky">#FFD180</color>
+    <color name="ground">#EF6C00</color>
+    <color name="groundBar">#FF9800</color>
+    <color name="player">#8BC34A</color>
+    <color name="block">#FF1744</color>
+    <color name="clouds">#90CAF9</color>
+</resources>
