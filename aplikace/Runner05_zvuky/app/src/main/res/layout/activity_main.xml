@@ -70,6 +70,14 @@
         android:src="@drawable/ic_pause"
         android:background="@android:color/transparent"/>
 
+    <ImageButton android:id="@+id/btn_sound"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/btn_pause"
+        android:src="@drawable/ic_volume_off"
+        android:background="@android:color/transparent"/>
+
 </RelativeLayout>
 
 

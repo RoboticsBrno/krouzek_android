@@ -38,6 +38,9 @@ public class GameData {
     private int mBlockIdx;
     private float mTimeCoef;
     private GameListener mListener;
+    private SoundManager mSoundMgr;
+    private float mMusicRate;
+    private int mMusicRateTimer;
 
     public synchronized void reset() {
         durationMs = 0;
@@ -55,10 +58,13 @@ public class GameData {
         mJumpState = 0;
         mBlockIdx = 0;
         mTimeCoef = 1.f;
+        mMusicRate = 0.9f;
+        mMusicRateTimer = 0;
     }
 
-    public GameData(GameListener listener) {
+    public GameData(GameListener listener, SoundManager soundMgr) {
         mListener = listener;
+        mSoundMgr = soundMgr;
         for(int i = 0; i < blocks.length; ++i) {
             blocks[i] = new Block();
         }
@@ -88,6 +94,7 @@ public class GameData {
 
     public synchronized void jump() {
         if(!collision && mJumpState == 0) {
+            mSoundMgr.playJump();
             mJumpState = 1;
             mJumpProgress = 0.f;
         }
@@ -132,6 +139,7 @@ public class GameData {
         }
 
         if(collision) {
+            mSoundMgr.playDeath();
             mListener.onCollision();
             return true;
         }
@@ -143,6 +151,19 @@ public class GameData {
             mBlockTimer = getNextBlockDelay();
         } else {
             mBlockTimer -= diffMs;
+        }
+
+        if (mMusicRateTimer <= diffMs) {
+            mMusicRate *= 1.005f;
+            if(mMusicRate > 2.f) {
+                mMusicRate = 2.f;
+                mMusicRateTimer = Integer.MAX_VALUE;
+            } else {
+                mMusicRateTimer = 1000;
+            }
+            mSoundMgr.setMusicRate(mMusicRate);
+        } else {
+            mMusicRateTimer -= diffMs;
         }
 
         mTimeCoef *= 1.f - SPEEDUP_COEF * diffMs;
