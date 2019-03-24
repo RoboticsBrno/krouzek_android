@@ -1,21 +1,24 @@
 package com.example.tassadar.runnergame;
 
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements GameData.GameListener {
     private GameData mData;
     private GameThread mThread;
     private GameView mGameView;
+    private SoundManager mSoundMgr;
     private View mMenu;
     private TextView mMessage;
     private Button mBtnStart;
     private Button mBtnContinue;
     private Button mBtnRestart;
+    private ImageButton mBtnSounds;
+    private boolean mEnableSounds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,8 @@ public class MainActivity extends AppCompatActivity implements GameData.GameList
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                 View.SYSTEM_UI_FLAG_FULLSCREEN);
 
-        mData = new GameData(this);
+        mSoundMgr = new SoundManager();
+        mData = new GameData(this, mSoundMgr);
 
         mGameView = findViewById(R.id.gameView);
         mGameView.setData(mData);
@@ -53,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements GameData.GameList
         mBtnStart = findViewById(R.id.btn_start);
         mBtnContinue = findViewById(R.id.btn_continue);
         mBtnRestart = findViewById(R.id.btn_restart);
+        mBtnSounds = findViewById(R.id.btn_sound);
 
         showMenu(true);
         mMessage.setText("Start new game?");
@@ -66,6 +71,35 @@ public class MainActivity extends AppCompatActivity implements GameData.GameList
                 setPaused(false);
             }
         });
+
+        mBtnSounds.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mEnableSounds = !mEnableSounds;
+                if(mEnableSounds) {
+                    mSoundMgr.initialize(MainActivity.this);
+                    mSoundMgr.setPaused(false);
+                    mBtnSounds.setImageResource(R.drawable.ic_volume_on);
+                } else {
+                    mSoundMgr.release();
+                    mBtnSounds.setImageResource(R.drawable.ic_volume_off);
+                }
+            }
+        });
+    }
+
+    protected void onStart() {
+        super.onStart();
+        if(mEnableSounds) {
+            mSoundMgr.initialize(this);
+        }
+    }
+
+    protected void onStop() {
+        super.onStop();
+        if(mEnableSounds) {
+            mSoundMgr.release();
+        }
     }
 
     protected void onPause() {
@@ -81,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements GameData.GameList
     private void showMenu(boolean show) {
         mMenu.setVisibility(show ? View.VISIBLE : View.GONE);
         mGameView.setAlpha(show ? 0.5f : 1.f);
+        mSoundMgr.setPaused(show);
     }
 
     private boolean setPaused(boolean paused) {
@@ -97,8 +132,10 @@ public class MainActivity extends AppCompatActivity implements GameData.GameList
     }
 
     public void restartGame(View view) {
-        if(setPaused(false)) {
-            mData.reset();
+        synchronized (mData) {
+            if (setPaused(false)) {
+                mData.reset();
+            }
         }
     }
 
