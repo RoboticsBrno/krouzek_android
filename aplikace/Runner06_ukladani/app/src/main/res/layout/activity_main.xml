@@ -40,6 +40,17 @@
             android:text="info"
             android:textSize="26sp" />
 
+        <TextView
+            android:id="@+id/score_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            android:text="high score"
+            android:visibility="gone"
+            android:textColor="#ff0000"
+            android:textSize="18sp" />
+
         <Button
             android:id="@+id/btn_start"
             android:layout_width="match_parent"

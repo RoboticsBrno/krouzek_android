@@ -10,6 +10,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -26,6 +27,7 @@ public class GameView extends View {
     private Paint mPaintBlock;
     private Paint mPaintTrail;
     private Paint mPaintClouds;
+    private Paint mPaintBestDiff;
 
     private Rect mGround;
     private Rect[] mGroundBars;
@@ -63,9 +65,15 @@ public class GameView extends View {
 
         mPaintPlayer = new Paint();
         mPaintPlayer.setColor(res.getColor(R.color.player));
+        mPaintPlayer.setTypeface(Typeface.MONOSPACE);
 
         mPaintBlock = new Paint();
         mPaintBlock.setColor(res.getColor(R.color.block));
+        mPaintBlock.setTypeface(Typeface.MONOSPACE);
+
+        mPaintBestDiff = new Paint();
+        mPaintBestDiff.setColor(Color.BLACK);
+        mPaintBestDiff.setTypeface(Typeface.MONOSPACE);
 
         mPaintClouds = new Paint();
         mPaintClouds.setColor(res.getColor(R.color.clouds));
@@ -110,6 +118,8 @@ public class GameView extends View {
         mGround = new Rect(0, (int) (h*split), w, h);
 
         mPaintBlock.setTextSize(h/15);
+        mPaintPlayer.setTextSize(h/15);
+        mPaintBestDiff.setTextSize(h/20);
 
         int playerW = (int) (w * GameData.PLAYER_WIDTH);
         mPlayer = new Rect(0, 0, playerW, playerW);
@@ -186,6 +196,7 @@ public class GameView extends View {
         float jumpOffset;
         float speed;
         double durationMs;
+        double bestDurationMs;
         synchronized (mData) {
             canvas.save();
             canvas.translate(-1 * mGroundBarSpacing * mData.groundBarsOffset, 0);
@@ -213,13 +224,21 @@ public class GameView extends View {
 
             speed = mData.getSpeedPlayer();
             durationMs = mData.durationMs;
+            bestDurationMs = mData.bestDurationMs;
             jumpOffset = -1 * mJumpHeight * mData.jumpOffset;
         }
 
         mTimeBuffer.setLength(0);
         mTimeFormat.format(durationMs / 1000, mTimeBuffer, mTimeField);
+        canvas.drawText(mTimeBuffer.toString(), 10, mPaintBlock.getTextSize() + 10,
+                durationMs > bestDurationMs ? mPaintPlayer : mPaintBlock);
+
+        mTimeBuffer.setLength(0);
+        if(durationMs > bestDurationMs)
+            mTimeBuffer.append('+');
+        mTimeFormat.format( (durationMs - bestDurationMs) / 1000, mTimeBuffer, mTimeField);
         canvas.drawText(mTimeBuffer.toString(),
-                10, mPaintBlock.getTextSize()*2, mPaintBlock);
+                10, mPaintBlock.getTextSize()*2, mPaintBestDiff);
 
         mTrailPath.setLastPoint(mPlayer.centerX(), mPlayer.centerY() + jumpOffset);
         canvas.drawPath(mTrailPath, mPaintTrail);

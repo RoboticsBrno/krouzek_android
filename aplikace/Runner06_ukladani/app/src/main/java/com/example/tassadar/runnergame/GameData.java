@@ -1,9 +1,11 @@
 package com.example.tassadar.runnergame;
 
 
+import android.content.SharedPreferences;
+
 public class GameData {
     public interface GameListener {
-        void onCollision();
+        void onCollision(boolean newHighScore);
     };
 
     public static final class Block {
@@ -25,6 +27,7 @@ public class GameData {
 
     private static final float SPEED_JUMP = 1.f / (TIME_JUMP / 2.f);
 
+    public double bestDurationMs;
     public float groundBarsOffset;
     public float jumpOffset;
     public Block[] blocks = new Block[(int)(TIME_ONE_LENGTH / (TIME_JUMP*2)) + 1];
@@ -140,7 +143,10 @@ public class GameData {
 
         if(collision) {
             mSoundMgr.playDeath();
-            mListener.onCollision();
+            mListener.onCollision(durationMs > bestDurationMs);
+            if(durationMs > bestDurationMs) {
+                bestDurationMs = durationMs;
+            }
             return true;
         }
 
@@ -168,5 +174,32 @@ public class GameData {
 
         mTimeCoef *= 1.f - SPEEDUP_COEF * diffMs;
         return collision;
+    }
+
+    public synchronized void save(SharedPreferences.Editor edit) {
+        edit.putFloat("bestDurationMs", (float) bestDurationMs);
+
+        if(collision || durationMs < 1000) {
+            edit.putBoolean("gameSaved", false);
+            return;
+        }
+
+        edit.putBoolean("gameSaved", true);
+        edit.putFloat("durationMs", (float) durationMs);
+        edit.putFloat("timeCoef", mTimeCoef);
+        edit.putFloat("musicRate", mMusicRate);
+    }
+
+    public synchronized boolean load(SharedPreferences pref) {
+        bestDurationMs = pref.getFloat("bestDurationMs", 0);
+
+        if(!pref.getBoolean("gameSaved", false))
+            return false;
+
+        durationMs = pref.getFloat("durationMs", 0);
+        mTimeCoef = pref.getFloat("timeCoef", mTimeCoef);
+        mMusicRate = pref.getFloat("musicRate", mMusicRate);
+        mBlockTimer = 1000;
+        return true;
     }
 }
