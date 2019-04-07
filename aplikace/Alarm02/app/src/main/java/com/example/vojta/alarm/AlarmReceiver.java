@@ -57,7 +57,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Bundle shell = intent.getBundleExtra("shell");
         Alarm a = (Alarm) shell.getSerializable("alarm");
 
-        AlarmScheduler.schedule(context, Alarm.getAlarms());
+        AlarmScheduler.schedule(context, Alarm.getAlarms(context));
 
         Uri sound = null;
         if(a.soundUri != null) {
