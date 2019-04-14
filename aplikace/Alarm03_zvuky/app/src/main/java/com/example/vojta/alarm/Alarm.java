@@ -57,9 +57,10 @@ public class Alarm implements Serializable, Comparable<Alarm> {
         int cur_day = c.get(Calendar.DAY_OF_WEEK) - 1;
         boolean found = false;
         for(int i = cur_day; i < cur_day+7; ++i) {
-            if(repeatDays[i%repeatDays.length])
+            if(repeatDays[i%repeatDays.length]) {
+                found = true;
                 break;
-            found = true;
+            }
             c.add(Calendar.DAY_OF_MONTH, 1);
         }
 

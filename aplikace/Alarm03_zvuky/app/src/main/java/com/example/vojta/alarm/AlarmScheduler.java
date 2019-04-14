@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
+import java.util.Date;
 import java.util.List;
 
 public class AlarmScheduler {
@@ -21,6 +23,8 @@ public class AlarmScheduler {
             }
 
             long tm = a.getNextTime();
+            Date d = new Date(tm);
+            Log.i("SChedule", d.toString());
             if(earliest == null || earliestTm > tm) {
                 earliestTm = tm;
                 earliest = a;

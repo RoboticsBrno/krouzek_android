@@ -1,6 +1,18 @@
 package com.example.vojta.alarm;
 
+import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.database.Cursor;
+import android.media.Image;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.DocumentsProvider;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.dpro.widgets.OnWeekdaysChangeListener;
 import com.dpro.widgets.WeekdaysPicker;
@@ -28,6 +41,8 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder> 
 
     public interface OnAlarmChangedListener {
         void onAlarmChanged(Alarm a);
+        void pickRingtone(Alarm a, int position);
+        void pickSoundFile(Alarm a, int position);
     }
 
     private List<Alarm> mAlarms;
@@ -74,6 +89,12 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder> 
         Button sound = it.mRoot.findViewById(R.id.btn_sound);
         sound.setOnClickListener(it);
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            ImageButton sound_file = it.mRoot.findViewById(R.id.btn_sound_file);
+            sound_file.setVisibility(View.VISIBLE);
+            sound_file.setOnClickListener(it);
+        }
+
         List<Integer> daysList = a.getSelectedDays();
 
         RadioGroup repeat = it.mRoot.findViewById(R.id.repeat);
@@ -91,7 +112,12 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder> 
         days.setOnWeekdaysChangeListener(it);
         days.setVisibility(repeat.getCheckedRadioButtonId() == R.id.repeat_days ? View.VISIBLE : View.GONE);
 
-        it.collapse();
+        if(mExpandedItem != null && mExpandedItem.mAlarm == a) {
+            it.expand();
+        } else {
+            it.collapse();
+        }
+        it.loadRingtoneName();
     }
 
     @Override
@@ -99,7 +125,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder> 
         return mAlarms.size();
     }
 
-    private class AlarmItem implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, RadioGroup.OnCheckedChangeListener, OnWeekdaysChangeListener {
+    private class AlarmItem implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, RadioGroup.OnCheckedChangeListener, OnWeekdaysChangeListener, TimePickerDialog.OnTimeSetListener {
         private int mPos;
         private Alarm mAlarm;
         private View mRoot;
@@ -151,8 +177,16 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder> 
                     toggle();
                     break;
                 case R.id.time:
+                    TimePickerDialog dialog = new TimePickerDialog(
+                            mRoot.getContext(), this, mAlarm.hour, mAlarm.minute,
+                            DateFormat.is24HourFormat(mRoot.getContext()));
+                    dialog.show();
                     break;
                 case R.id.btn_sound:
+                    mChangeListener.pickRingtone(mAlarm, mPos);
+                    break;
+                case R.id.btn_sound_file:
+                    mChangeListener.pickSoundFile(mAlarm, mPos);
                     break;
                 case R.id.btn_delete:
                     mAlarms.remove(mPos);
@@ -202,6 +236,44 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder> 
         public void onChange(View view, int clickedDay, List<Integer> selectedDays) {
             mAlarm.repeatDays[clickedDay-1] = selectedDays.contains(clickedDay);
             mChangeListener.onAlarmChanged(mAlarm);
+        }
+
+        private void loadRingtoneName() {
+            Button sound = mRoot.findViewById(R.id.btn_sound);
+            Uri uri = Uri.parse(mAlarm.soundUri);
+
+            Ringtone tone = RingtoneManager.getRingtone(mRoot.getContext(), uri);
+            if(tone != null && !uri.getAuthority().equals("com.android.providers.media.documents")) {
+                sound.setText(tone.getTitle(mRoot.getContext()));
+                return;
+            }
+
+            Cursor c = mRoot.getContext().getContentResolver().query(uri,
+                    null, null, null, null);
+            if(c != null) {
+                try {
+                    if(c.moveToFirst()) {
+                        sound.setText(c.getString(
+                                c.getColumnIndex(OpenableColumns.DISPLAY_NAME)));
+                        return;
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+
+            sound.setText(uri.getLastPathSegment());
+        }
+
+        @Override
+        public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+            if(mAlarm.hour != Alarm.HOUR_ANY)
+                mAlarm.hour = hour;
+            mAlarm.minute = minute;
+            mChangeListener.onAlarmChanged(mAlarm);
+
+            TextView time = mRoot.findViewById(R.id.time);
+            time.setText(mAlarm.getTimeText());
         }
     }
 }
