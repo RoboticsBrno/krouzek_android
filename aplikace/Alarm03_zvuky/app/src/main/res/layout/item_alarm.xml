@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:elevation="3dp"
+    android:background="#eee"
+    android:padding="12dp"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:animateLayoutChanges="true">
+
+    <LinearLayout
+        android:id="@+id/layout_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            tools:text="8:20" />
+
+        <View android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_width="0dp" />
+
+        <Switch
+            android:id="@+id/enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/layout_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <CheckBox
+            android:id="@+id/box_vibrate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Vibrate" />
+
+        <Button
+            android:id="@+id/btn_sound"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_music"
+            android:text="Pick sound..."
+            android:gravity="left|center_vertical"
+            android:background="?android:attr/selectableItemBackground"/>
+
+        <RadioGroup android:id="@+id/repeat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/repeat_none"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every Day"/>
+            <RadioButton
+                android:id="@+id/repeat_hour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every hour"/>
+            <RadioButton
+                android:id="@+id/repeat_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pick days..."/>
+        </RadioGroup>
+
+        <com.dpro.widgets.WeekdaysPicker
+            android:id="@+id/days"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_height="1dp"
+        android:background="#ccc"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button android:id="@+id/btn_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:drawableLeft="@android:drawable/ic_delete"
+            android:background="?android:attr/selectableItemBackground"
+            android:visibility="gone"/>
+
+        <View android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_width="0dp" />
+
+        <ImageButton
+            android:id="@+id/expand_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="bottom"
+            android:src="@android:drawable/arrow_down_float"
+            android:background="?android:attr/selectableItemBackground"/>
+    </LinearLayout>
+</LinearLayout>
