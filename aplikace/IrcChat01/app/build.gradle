@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.example.vojta.ircchat01"
+        applicationId "com.example.vojta.ircchat"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1

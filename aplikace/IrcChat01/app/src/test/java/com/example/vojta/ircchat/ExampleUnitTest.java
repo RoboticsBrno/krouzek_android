@@ -1,4 +1,4 @@
-package com.example.vojta.ircchat01;
+package com.example.vojta.ircchat;
 
 import org.junit.Test;
 
