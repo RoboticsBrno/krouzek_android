@@ -1,7 +1,14 @@
 'use strict';
 
 var chat = document.getElementById("chat");
-function addMessage(sender, message) {
+function addMessage(date, sender, message) {
+    if(date !== null && date !== "") {
+        var elDate = document.createElement("small");
+        elDate.style.color = "gray";
+        elDate.innerText = "[" + date + "] ";
+        chat.appendChild(elDate)
+    }
+
     if(sender !== null) {
         var elSender = document.createElement("b");
         elSender.innerHTML = "&lt;" + sender + "&gt;: ";

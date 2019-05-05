@@ -17,16 +17,25 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.net.ssl.SSLSocket;
@@ -54,13 +63,16 @@ public class IrcConnection extends Service {
 
     private ConnectThread mConnectThread;
 
+    private final ArrayList<Bundle> mMessages = new ArrayList<>();
+    private SimpleDateFormat mDateFormat = new SimpleDateFormat("MMM d, H:mm");
+
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getBooleanExtra("close", false)) {
+        if (intent != null && intent.getBooleanExtra("close", false)) {
             Handler h = mHandler.get();
             if (h != null) {
                 h.sendEmptyMessage(MainActivity.MSG_CLOSE);
@@ -109,6 +121,10 @@ public class IrcConnection extends Service {
                 .addAction(0, "Close", close);
         startForeground(1, builder.build());
 
+        synchronized (mMessages) {
+            loadHistory();
+        }
+
         mConnectThread = new ConnectThread();
         mConnectThread.start();
     }
@@ -126,17 +142,36 @@ public class IrcConnection extends Service {
     }
 
     private void sendMessage(String sender, String text, Object... args) {
+        Bundle data = new Bundle();
+        data.putString("date", mDateFormat.format(new Date()));
+        data.putString("sender", sender);
+        data.putString("message", String.format(text, args));
+
+        synchronized (mMessages) {
+            mMessages.add(data);
+        }
+
         Handler h = mHandler.get();
         if (h == null)
             return;
 
-        Bundle data = new Bundle();
-        data.putString("sender", sender);
-        data.putString("message", String.format(text, args));
-
         Message msg = h.obtainMessage(MainActivity.MSG_ADD_MESSAGE);
         msg.setData(data);
         msg.sendToTarget();
+    }
+
+    public void replayMessages() {
+        Handler h = mHandler.get();
+        if (h == null)
+            return;
+
+        synchronized (mMessages) {
+            for(Bundle data : mMessages) {
+                Message msg = h.obtainMessage(MainActivity.MSG_ADD_MESSAGE);
+                msg.setData(data);
+                msg.sendToTarget();
+            }
+        }
     }
 
     public void write(byte[] data) {
@@ -296,6 +331,9 @@ public class IrcConnection extends Service {
                     sendMessage(null, "You have joined channel %s!",
                             args[3]);
                     break;
+                case "NOTICE":
+                    sendMessage(null, args[args.length - 1]);
+                    break;
             }
         }
 
@@ -353,7 +391,77 @@ public class IrcConnection extends Service {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        sendMessage(null, "Closing application.<br>");
+
+        synchronized (mMessages) {
+            saveHistory();
+        }
+
         stopForeground(true);
         mWakeLock.release();
+    }
+
+    private void saveHistory() {
+        ObjectOutputStream out = null;
+        FileOutputStream fout = null;
+        try {
+            fout = openFileOutput("history.dat", 0);
+            out = new ObjectOutputStream(fout);
+            final int saveCount = Math.min(mMessages.size(), 200);
+            out.writeInt(saveCount);
+            if(mMessages.isEmpty())
+                return;
+
+            Object[] keys = mMessages.get(mMessages.size()-1).keySet().toArray();
+            out.writeInt(keys.length);
+            for(Object k : keys) {
+                out.writeObject(k);
+            }
+
+            for(int i = mMessages.size() - saveCount; i < saveCount; ++i) {
+                Bundle msg = mMessages.get(i);
+                for(Object k : keys)
+                    out.writeObject(msg.getString((String)k));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try { out.close(); } catch(Exception e) {}
+            try { fout.close(); } catch(Exception e) {}
+        }
+    }
+
+    private void loadHistory() {
+        mMessages.clear();
+        FileInputStream fin = null;
+        ObjectInputStream in = null;
+        try {
+            fin = openFileInput("history.dat");
+            in = new ObjectInputStream(fin);
+            final int msgcount = in.readInt();
+            if(msgcount == 0)
+                return;
+
+            final int keycount = in.readInt();
+            String[] keys = new String[keycount];
+            for(int i = 0; i < keycount; ++i)
+                keys[i] = (String)in.readObject();
+
+            mMessages.ensureCapacity(msgcount);
+            for(int i = 0; i < msgcount; ++i) {
+                Bundle data = new Bundle();
+                for(String k : keys)
+                    data.putString(k, (String)in.readObject());
+                mMessages.add(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try { in.close(); } catch(Exception e) {}
+            try { fin.close(); } catch(Exception e) {}
+        }
     }
 }

@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         public void onServiceConnected(ComponentName n, IBinder iBinder) {
             mConnection = ((IrcConnection.IrcConnectionBinder) iBinder).getService();
             mConnection.setHandler(mHandler);
+            mConnection.replayMessages();
         }
 
         public void onServiceDisconnected(ComponentName n) {
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
 
         mMessageEdit = findViewById(R.id.message);
         mMessageEdit.setOnEditorActionListener(this);
+        mMessageEdit.setImeOptions(EditorInfo.IME_ACTION_SEND);
 
         Button sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setOnClickListener(this);
@@ -64,14 +66,20 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         mHandler.act = this;
 
         Intent i = new Intent(this, IrcConnection.class);
-        startService(i);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(i);
+        } else {
+            startService(i);
+        }
         bindService(i, mServiceConn, Context.BIND_AUTO_CREATE);
     }
 
-    private void addMessage(String sender, String message, Object... args) {
-        if (message == null || message.isEmpty()) {
-            return;
-        }
+    private void addMessage(String date, String sender, String message, Object... args) {
+        if (date == null)
+            date = "";
+
+        if (message == null)
+            message = "";
 
         message = String.format(message, args).replace("'", "\\'");
         if (sender == null || sender.isEmpty()) {
@@ -79,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         } else {
             sender = String.format("'%s'", sender.replace("'", "\\'"));
         }
-        mWebView.loadUrl(String.format("javascript:addMessage(%s, '%s');", sender, message));
+        mWebView.loadUrl(String.format("javascript:addMessage('%s', %s, '%s');", date, sender, message));
     }
 
     private static class IrcHandler extends Handler {
@@ -93,10 +101,11 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
 
             switch (msg.what) {
                 case MSG_ADD_MESSAGE:
-                    act.addMessage(data.getString("sender"), data.getString("message"));
+                    act.addMessage(data.getString("date", ""),
+                            data.getString("sender"), data.getString("message"));
                     break;
                 case MSG_ERROR:
-                    act.addMessage(null, "<span style=\"color: red\">%s</span>", msg.obj);
+                    act.addMessage(null, null, "<span style=\"color: red\">%s</span>", msg.obj);
                     break;
                 case MSG_CLOSE:
                     act.finish();
@@ -122,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
             String msg = TextUtils.htmlEncode(mMessageEdit.getText().toString());
             mConnection.write("PRIVMSG %s :%s", IrcConnection.IRC_CHANNEL,
                     msg);
-            addMessage(IrcConnection.NICKNAME, msg);
+            addMessage(null, IrcConnection.NICKNAME, msg);
             mMessageEdit.setText("");
         }
     }
