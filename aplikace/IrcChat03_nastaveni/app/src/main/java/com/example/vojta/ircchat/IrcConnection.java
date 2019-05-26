@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -42,19 +44,16 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 public class IrcConnection extends Service {
-    public static final String NICKNAME = "Robotarna";
-    public static final String IRC_CHANNEL = "#RobotarnaAndroid";
-
     private static final String CHANNEL_ID = "IrcConnection";
-
-    private static final String HOST = "chat.freenode.net";
-    private static final int PORT = 6697;
 
     public class IrcConnectionBinder extends Binder {
         IrcConnection getService() {
             return IrcConnection.this;
         }
     }
+
+    private String mNickname = "Robotarna";
+    private String mChannel = "#RobotarnaAndroid";
 
     private final IBinder mBinder = new IrcConnectionBinder();
     private WeakReference<Handler> mHandler = new WeakReference<>(null);
@@ -125,8 +124,24 @@ public class IrcConnection extends Service {
             loadHistory();
         }
 
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        mNickname = pref.getString("user_nickname", mNickname);
+        mChannel = pref.getString("host_channel", mChannel);
+
         mConnectThread = new ConnectThread();
         mConnectThread.start();
+    }
+
+    public String getNickname() {
+        return mNickname;
+    }
+
+    public void setNickname(String nick) {
+        mNickname = nick;
+    }
+
+    public String getChannel() {
+        return mChannel;
     }
 
     public void setHandler(Handler h) {
@@ -195,6 +210,19 @@ public class IrcConnection extends Service {
     private class ConnectThread extends Thread {
         private Socket mSocket;
 
+        private InetSocketAddress getAddress() {
+            SharedPreferences pref =
+                    PreferenceManager.getDefaultSharedPreferences(IrcConnection.this);
+            String host = pref.getString("server_host", "chat.freenode.net");
+            int port = 6697;
+            try {
+                port = Integer.valueOf(pref.getString("server_port", ""));
+            } catch(NumberFormatException ex) {
+                // default
+            }
+            return new InetSocketAddress(host, port);
+        }
+
         private synchronized void stopThread() {
             interrupt();
             try {
@@ -213,12 +241,13 @@ public class IrcConnection extends Service {
             while (!isInterrupted()) {
                 Socket so = null;
                 WriteThread writeThread = null;
+
                 try {
                     sendMessage(null, "Connecting...");
                     so = SSLSocketFactory.getDefault().createSocket();
                     so.setSoTimeout(5000);
                     so.setKeepAlive(true);
-                    so.connect(new InetSocketAddress(HOST, PORT));
+                    so.connect(getAddress());
                     so.setSoTimeout(0);
 
                     synchronized (mWriteQueue) {
@@ -236,9 +265,9 @@ public class IrcConnection extends Service {
                     writeThread = new WriteThread(so.getOutputStream());
                     writeThread.start();
 
-                    write("NICK %s", NICKNAME);
-                    write("USER %s host host host :%s", NICKNAME, NICKNAME, NICKNAME);
-                    write("JOIN %s", IRC_CHANNEL);
+                    write("NICK %s", mNickname);
+                    write("USER %s host host host :%s", mNickname, mNickname, mNickname);
+                    write("JOIN %s", mChannel);
 
                     read(so);
                 } catch (IOException e) {
@@ -314,7 +343,7 @@ public class IrcConnection extends Service {
                     write("PONG :%s", args[1]);
                     return;
                 case "PRIVMSG":
-                    if (args[1].equals(IRC_CHANNEL)) {
+                    if (args[1].equals(mChannel)) {
                         sendMessage(getNick(prefix), TextUtils.htmlEncode(args[args.length - 1]));
                     }
                     return;
@@ -333,6 +362,10 @@ public class IrcConnection extends Service {
                     break;
                 case "NOTICE":
                     sendMessage(null, args[args.length - 1]);
+                    break;
+                case "NICK":
+                    sendMessage(null, "<b>%s switched to %s</b>", getNick(prefix),
+                            args[args.length - 1]);
                     break;
             }
         }

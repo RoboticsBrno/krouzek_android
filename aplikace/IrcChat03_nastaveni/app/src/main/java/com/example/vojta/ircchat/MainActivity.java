@@ -4,14 +4,19 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.WebSettings;
@@ -24,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     public static final int MSG_ADD_MESSAGE = 0;
     public static final int MSG_ERROR = 1;
     public static final int MSG_CLOSE = 2;
+
+    private static final int ACT_SETTINGS = 1;
 
     private WebView mWebView;
     private EditText mMessageEdit;
@@ -72,6 +79,36 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
             startService(i);
         }
         bindService(i, mServiceConn, Context.BIND_AUTO_CREATE);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings: {
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivityForResult(i, ACT_SETTINGS);
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onActivityResult(int request, int result, Intent data) {
+        if(request == ACT_SETTINGS && mConnection != null) {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+            String nick = mConnection.getNickname();
+            if(!nick.equals(pref.getString("user_nickname", nick))) {
+                nick = pref.getString("user_nickname", nick);
+                mConnection.setNickname(nick);
+                mConnection.write("NICK %s", nick);
+            }
+        }
     }
 
     private void addMessage(String date, String sender, String message, Object... args) {
@@ -129,9 +166,9 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     private void sendMessage() {
         if (mConnection != null) {
             String msg = TextUtils.htmlEncode(mMessageEdit.getText().toString());
-            mConnection.write("PRIVMSG %s :%s", IrcConnection.IRC_CHANNEL,
-                    msg);
-            addMessage(null, IrcConnection.NICKNAME, msg);
+            mConnection.write("PRIVMSG %s :%s",
+                    mConnection.getChannel(), msg);
+            addMessage(null, mConnection.getNickname(), msg);
             mMessageEdit.setText("");
         }
     }

@@ -11,6 +11,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -19,6 +20,8 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.net.InetAddress;
 
 public class MainActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener {
     public static final int MSG_ADD_MESSAGE = 0;
