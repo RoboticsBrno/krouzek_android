@@ -15,10 +15,22 @@ function addMessage(date, sender, message) {
         chat.appendChild(elSender);
     }
 
-    var elMessage = document.createElement(sender !== null ? "span" : "i");
-    elMessage.innerHTML = message;
+    var isImg = message.match(new RegExp('^IMG: http[^ ]+$'));
+    if(sender === null || !isImg) {
+        var elMessage = document.createElement(sender !== null ? "span" : "i");
+        elMessage.innerHTML = message;
 
-    chat.appendChild(elMessage);
+        chat.appendChild(elMessage);
+    } else {
+        chat.appendChild(document.createElement("br"));
+
+        var elImg = document.createElement("img");
+        elImg.src = message.substring(5);
+        elImg.style.marginLeft = "20px";
+        elImg.style.border = "1px solid black";
+        elImg.style.width = "70%";
+        chat.appendChild(elImg);
+    }
     chat.appendChild(document.createElement("br"));
     window.scrollTo(0, document.body.scrollHeight);
 }

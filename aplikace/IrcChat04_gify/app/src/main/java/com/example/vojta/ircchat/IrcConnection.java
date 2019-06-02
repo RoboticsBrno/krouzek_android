@@ -157,14 +157,7 @@ public class IrcConnection extends Service {
     }
 
     private void sendMessage(String sender, String text, Object... args) {
-        Bundle data = new Bundle();
-        data.putString("date", mDateFormat.format(new Date()));
-        data.putString("sender", sender);
-        data.putString("message", String.format(text, args));
-
-        synchronized (mMessages) {
-            mMessages.add(data);
-        }
+        Bundle data = addMessage(sender, String.format(text, args));
 
         Handler h = mHandler.get();
         if (h == null)
@@ -173,6 +166,18 @@ public class IrcConnection extends Service {
         Message msg = h.obtainMessage(MainActivity.MSG_ADD_MESSAGE);
         msg.setData(data);
         msg.sendToTarget();
+    }
+
+    public Bundle addMessage(String sender, String text) {
+        Bundle data = new Bundle();
+        data.putString("date", mDateFormat.format(new Date()));
+        data.putString("sender", sender);
+        data.putString("message", text);
+
+        synchronized (mMessages) {
+            mMessages.add(data);
+        }
+        return data;
     }
 
     public void replayMessages() {
@@ -367,6 +372,10 @@ public class IrcConnection extends Service {
                     sendMessage(null, "<b>%s switched to %s</b>", getNick(prefix),
                             args[args.length - 1]);
                     break;
+                case "QUIT":
+                    sendMessage(null, "<b>%s has quit: %s</b>", getNick(prefix),
+                            args[args.length-1]);
+                    break;
             }
         }
 
@@ -418,6 +427,9 @@ public class IrcConnection extends Service {
 
     public void onDestroy() {
         super.onDestroy();
+
+        write("QUIT :See ya!");
+
         mConnectThread.stopThread();
         try {
             mConnectThread.join();

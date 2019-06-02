@@ -164,13 +164,18 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private void sendMessage() {
-        if (mConnection != null) {
-            String msg = TextUtils.htmlEncode(mMessageEdit.getText().toString());
-            mConnection.write("PRIVMSG %s :%s",
-                    mConnection.getChannel(), msg);
-            addMessage(null, mConnection.getNickname(), msg);
-            mMessageEdit.setText("");
-        }
+        sendMessage(mMessageEdit.getText().toString());
+        mMessageEdit.setText("");
+    }
+
+    public void sendMessage(String msg) {
+        if (mConnection == null)
+            return;
+
+        msg = TextUtils.htmlEncode(msg);
+        mConnection.addMessage(mConnection.getNickname(), msg);
+        mConnection.write("PRIVMSG %s :%s", mConnection.getChannel(), msg);
+        addMessage(null, mConnection.getNickname(), msg);
     }
 
     public boolean onEditorAction(TextView v, int action, KeyEvent ev) {
