@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:key="user"
+        app:title="User">
+        <EditTextPreference
+            app:key="user_nickname"
+            app:title="Nickname"
+            app:summary="The name others will see."
+            app:defaultValue="Robotarna" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:key="server"
+        app:title="IRC Server">
+        <EditTextPreference
+            app:key="server_host"
+            app:title="Host"
+            app:summary="The server hostname."
+            app:defaultValue="chat.freenode.net" />
+        <EditTextPreference
+            app:key="server_port"
+            app:title="Port"
+            app:summary="The server port."
+            app:defaultValue="6697" />
+        <EditTextPreference
+            app:key="server_channel"
+            app:title="Channel"
+            app:summary="Which channel should we connect to."
+            app:defaultValue="#RobotarnaAndroid" />
+    </PreferenceCategory>
+</PreferenceScreen>
