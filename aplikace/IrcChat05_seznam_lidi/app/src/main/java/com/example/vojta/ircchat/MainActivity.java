@@ -10,8 +10,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,12 +27,21 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener, UsersAdapter.OnUserClickedListener, DrawerLayout.DrawerListener {
     public static final int MSG_ADD_MESSAGE = 0;
     public static final int MSG_ERROR = 1;
     public static final int MSG_CLOSE = 2;
+    public static final int MSG_CHANNEL_JOINED = 3;
+    public static final int MSG_USER_JOINED = 4;
+    public static final int MSG_USER_LEFT = 5;
+    public static final int MSG_NAMES = 6;
 
     private static final int ACT_SETTINGS = 1;
 
@@ -36,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     private EditText mMessageEdit;
     private IrcHandler mHandler;
     private IrcConnection mConnection;
+    private DrawerLayout mDrawerLayout;
+    private RecyclerView mUserList;
+    private List<String> mUsers;
 
     private final ServiceConnection mServiceConn = new ServiceConnection() {
         public void onServiceConnected(ComponentName n, IBinder iBinder) {
@@ -54,6 +70,18 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        mDrawerLayout.addDrawerListener(this);
+
+        mUsers = new ArrayList<>();
+        UsersAdapter adapter = new UsersAdapter(this);
+        adapter.setUsers(mUsers);
+
+        mUserList = findViewById(R.id.userList);
+        mUserList.setLayoutManager(new LinearLayoutManager(this));
+        mUserList.setAdapter(adapter);
 
         mWebView = findViewById(R.id.webView);
 
@@ -147,6 +175,29 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
                 case MSG_CLOSE:
                     act.finish();
                     break;
+                case MSG_CHANNEL_JOINED:
+                    act.mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    act.setUserListVisible(false);
+                    if(!act.mUsers.isEmpty()) {
+                        act.mUsers.clear();
+                        act.mUserList.getAdapter().notifyDataSetChanged();
+                    }
+                    break;
+                case MSG_USER_JOINED:
+                    if(!act.mUsers.isEmpty()) {
+                        act.addUser((String)msg.obj);
+                    }
+                    break;
+                case MSG_USER_LEFT:
+                    act.rmUser((String)msg.obj);
+                    break;
+                case MSG_NAMES:
+                    act.mUsers.clear();
+                    Collections.addAll(act.mUsers, (String[])msg.obj);
+                    Collections.sort(act.mUsers);
+                    act.mUserList.getAdapter().notifyDataSetChanged();
+                    act.setUserListVisible(true);
+                    break;
             }
         }
     }
@@ -189,5 +240,44 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     public void onClick(View view) {
         if(view.getId() == R.id.sendBtn)
             sendMessage();
+    }
+
+    @Override
+    public void OnUserClicked(String username) {
+        String text = mMessageEdit.getText().toString();
+        if(text.isEmpty())
+            mMessageEdit.setText(username + " ");
+        else
+            mMessageEdit.setText(String.format("%s %s ", text, username));
+        mDrawerLayout.closeDrawers();
+    }
+
+    public void onDrawerSlide(View view, float v) { }
+    public void onDrawerClosed(View view) { }
+    public void onDrawerStateChanged(int i) { }
+
+    public void onDrawerOpened(View view) {
+        if(mConnection != null && mUsers.isEmpty()) {
+            mConnection.write("NAMES %s", mConnection.getChannel());
+        }
+    }
+
+    private void setUserListVisible(boolean visible) {
+        ProgressBar bar = findViewById(R.id.usersProgressBar);
+        bar.setVisibility(visible ? View.GONE : View.VISIBLE);
+        mUserList.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    public void addUser(String username) {
+        if (!mUsers.contains(username)) {
+            mUsers.add(username);
+            Collections.sort(mUsers);
+            mUserList.getAdapter().notifyDataSetChanged();
+        }
+    }
+
+    public void rmUser(String username) {
+        if (mUsers.remove(username))
+            mUserList.getAdapter().notifyDataSetChanged();
     }
 }

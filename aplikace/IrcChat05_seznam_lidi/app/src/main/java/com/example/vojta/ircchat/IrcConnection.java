@@ -194,6 +194,13 @@ public class IrcConnection extends Service {
         }
     }
 
+    private void sendMsgToActivity(int what, Object obj) {
+        Handler h = mHandler.get();
+        if (h == null)
+            return;
+        h.obtainMessage(what, obj).sendToTarget();
+    }
+
     public void write(byte[] data) {
         synchronized (mWriteQueue) {
             mWriteQueue.add(data);
@@ -355,16 +362,26 @@ public class IrcConnection extends Service {
                 case "ERROR":
                     sendError(args[args.length - 1]);
                     return;
-                case "JOIN":
-                    sendMessage(null, "<b>%s has joined.</b>", getNick(prefix));
+                case "JOIN": {
+                    String nick = getNick(prefix);
+                    if(nick.equals(getNickname())) {
+                        sendMessage(null, "You have joined channel %s!", args[1]);
+                        sendMsgToActivity(MainActivity.MSG_CHANNEL_JOINED, null);
+                    } else {
+                        sendMessage(null, "<b>%s has joined.</b>", getNick(prefix));
+                        sendMsgToActivity(MainActivity.MSG_USER_JOINED, getNick(prefix));
+                    }
                     break;
+                }
                 case "PART":
                     sendMessage(null, "<b>%s has left.</b>", getNick(prefix));
+                    sendMsgToActivity(MainActivity.MSG_USER_LEFT, getNick(prefix));
                     break;
-                case "353":
-                    sendMessage(null, "You have joined channel %s!",
-                            args[3]);
+                case "353": {
+                    String[] names = args[args.length - 1].split(" ");
+                    sendMsgToActivity(MainActivity.MSG_NAMES, names);
                     break;
+                }
                 case "NOTICE":
                     sendMessage(null, args[args.length - 1]);
                     break;
@@ -375,6 +392,7 @@ public class IrcConnection extends Service {
                 case "QUIT":
                     sendMessage(null, "<b>%s has quit: %s</b>", getNick(prefix),
                             args[args.length-1]);
+                    sendMsgToActivity(MainActivity.MSG_USER_LEFT, getNick(prefix));
                     break;
             }
         }
